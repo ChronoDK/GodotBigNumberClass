@@ -1,16 +1,34 @@
-extends Reference
-
 class_name Big
+extends Reference
+# Big number class for use in idle / incremental games and other games that needs very large numbers
+# Can format large numbers using a variety of notation methods:
+# AA notation like AA, AB, AC etc. 
+# Metric symbol notation k, m, G, T etc.
+# Metric name notation kilo, mega, giga, tera etc.
+# Long names like octo-vigin-tillion or millia-nongen-quin-vigin-tillion (based on work by Landon Curt Noll)
+# Scientic notation like 13e37 or 42e42
+# Long strings like 4200000000 or 13370000000000000000000000000000
+# Please note that this class has limited precision and does not fully support negative exponents
 
-var mantissa:float = 0.0
-var exponent:int = 1
+var mantissa: float = 0.0
+var exponent: int = 1
 
-const postfixes_dict = {"0":"", "1":"k", "2":"m", "3":"b", "4":"t", "5":"aa", "6":"ab", "7":"ac", "8":"ad", "9":"ae", "10":"af", "11":"ag", "12":"ah", "13":"ai", "14":"aj", "15":"ak", "16":"al", "17":"am", "18":"an", "19":"ao", "20":"ap", "21":"aq", "22":"ar", "23":"as", "24":"at", "25":"au", "26":"av", "27":"aw", "28":"ax", "29":"ay", "30":"az", "31":"ba", "32":"bb", "33":"bc", "34":"bd", "35":"be", "36":"bf", "37":"bg", "38":"bh", "39":"bi", "40":"bj", "41":"bk", "42":"bl", "43":"bm", "44":"bn", "45":"bo", "46":"bp", "47":"bq", "48":"br", "49":"bs", "50":"bt", "51":"bu", "52":"bv", "53":"bw", "54":"bx", "55":"by", "56":"bz", "57":"ca"}
-const alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+const postfixes_metric_symbol = {"0":"", "1":"k", "2":"M", "3":"G", "4":"T", "5":"P", "6":"E", "7":"Z", "8":"Y"}
+const postfixes_metric_name = {"0":"", "1":"kilo", "2":"mega", "3":"giga", "4":"tera", "5":"peta", "6":"exa", "7":"zetta", "8":"yotta"}
+const postfixes_aa = {"0":"", "1":"k", "2":"m", "3":"b", "4":"t", "5":"aa", "6":"ab", "7":"ac", "8":"ad", "9":"ae", "10":"af", "11":"ag", "12":"ah", "13":"ai", "14":"aj", "15":"ak", "16":"al", "17":"am", "18":"an", "19":"ao", "20":"ap", "21":"aq", "22":"ar", "23":"as", "24":"at", "25":"au", "26":"av", "27":"aw", "28":"ax", "29":"ay", "30":"az", "31":"ba", "32":"bb", "33":"bc", "34":"bd", "35":"be", "36":"bf", "37":"bg", "38":"bh", "39":"bi", "40":"bj", "41":"bk", "42":"bl", "43":"bm", "44":"bn", "45":"bo", "46":"bp", "47":"bq", "48":"br", "49":"bs", "50":"bt", "51":"bu", "52":"bv", "53":"bw", "54":"bx", "55":"by", "56":"bz", "57":"ca"}
+const alphabet_aa = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+
+const latin_ones = ["", "un", "duo", "tre", "quattuor", "quin", "sex", "septen", "octo", "novem"]
+const latin_tens = ["", "dec", "vigin", "trigin", "quadragin", "quinquagin", "sexagin", "septuagin", "octogin", "nonagin"]
+const latin_hundreds = ["", "cen", "duocen", "trecen", "quadringen", "quingen", "sescen", "septingen", "octingen", "nongen"]
+const latin_special = ["", "mi", "bi", "tri", "quadri", "quin", "sex", "sept", "oct", "non"]
+
+const other = {"postfix_separator":" ", "reading_separator":"", "thousand_name":"thousand"}
 
 const MAX_MANTISSA = 1209600
 
-func _init(m,e=0):
+
+func _init(m, e := 0):
     if typeof(m) == TYPE_STRING:
         var scientific = m.split("e")
         mantissa = float(scientific[0])
@@ -19,19 +37,31 @@ func _init(m,e=0):
         else:
             exponent = 0
     elif typeof(m) == TYPE_OBJECT:
-        mantissa = m.mantissa
-        exponent = m.exponent
+        if m.is_class("Big"):
+            mantissa = m.mantissa
+            exponent = m.exponent
     else:
-        size_check(m)
+        _sizeCheck(m)
         mantissa = m
         exponent = e
     calculate(self)
+    pass
 
-func size_check(m):
+
+func get_class():
+    return "Big"
+
+
+func is_class(c):
+    return c == "Big"
+
+
+func _sizeCheck(m):
     if m > MAX_MANTISSA:
         printerr("BIG ERROR: MANTISSA TOO LARGE, PLEASE USE EXPONENT OR SCIENTIFIC NOTATION")
 
-func type_check(n):
+
+func _typeCheck(n):
     if typeof(n) == TYPE_INT or typeof(n) == TYPE_REAL:
         return {"mantissa":float(n), "exponent":0}
     elif typeof(n) == TYPE_STRING:
@@ -39,27 +69,30 @@ func type_check(n):
     else:
         return n
 
+
 func plus(n):
-    n = type_check(n)
-    size_check(n.mantissa)
+    n = _typeCheck(n)
+    _sizeCheck(n.mantissa)
     var exp_diff = n.exponent - exponent
     var scaled_mantissa = n.mantissa * pow(10, exp_diff)
     mantissa += scaled_mantissa
     calculate(self)
     return self
 
+
 func minus(n):
-    n = type_check(n)
-    size_check(n.mantissa)
+    n = _typeCheck(n)
+    _sizeCheck(n.mantissa)
     var exp_diff = n.exponent - exponent
     var scaled_mantissa = n.mantissa * pow(10, exp_diff)
     mantissa -= scaled_mantissa
     calculate(self)
     return self
 
+
 func multiply(n):
-    n = type_check(n)
-    size_check(n.mantissa)
+    n = _typeCheck(n)
+    _sizeCheck(n.mantissa)
     var new_exponent = n.exponent + exponent
     var new_mantissa = n.mantissa * mantissa
     while new_mantissa >= 10.0:
@@ -69,10 +102,11 @@ func multiply(n):
     exponent = new_exponent
     calculate(self)
     return self
-    
+
+
 func divide(n):
-    n = type_check(n)
-    size_check(n.mantissa)
+    n = _typeCheck(n)
+    _sizeCheck(n.mantissa)
     if n.mantissa == 0:
         printerr("BIG ERROR: DIVIDE BY ZERO")
         return self
@@ -87,7 +121,8 @@ func divide(n):
     calculate(self)
     return self
 
-func power(n:int):
+
+func power(n: int):
     if n < 0:
         printerr("BIG ERROR: NEGATIVE EXPONENTS NOT SUPPORTED!")
         mantissa = 1.0
@@ -118,6 +153,7 @@ func power(n:int):
     calculate(self)
     return self
 
+
 func square():
     if exponent % 2 == 0:
         mantissa = sqrt(mantissa)
@@ -127,6 +163,7 @@ func square():
         exponent = (exponent-1)/2
     calculate(self)
     return self
+
 
 func calculate(big):
     if big.mantissa >= 10.0 or big.mantissa < 1.0:
@@ -145,13 +182,15 @@ func calculate(big):
         big.exponent = 0
     pass
 
+
 func isEqualTo(n):
-    n = type_check(n)
+    n = _typeCheck(n)
     calculate(n)
     return n.mantissa == mantissa and n.exponent == exponent
 
+
 func isLargerThan(n):
-    n = type_check(n)
+    n = _typeCheck(n)
     calculate(n)
     
     if mantissa == 0.0:
@@ -167,8 +206,9 @@ func isLargerThan(n):
     else:
         return false
 
+
 func isLargerThanOrEqualTo(n):
-    n = type_check(n)
+    n = _typeCheck(n)
     calculate(n)
     if isEqualTo(n):
         return true
@@ -176,8 +216,9 @@ func isLargerThanOrEqualTo(n):
         return true
     return false
 
+
 func isLessThan(n):
-    n = type_check(n)
+    n = _typeCheck(n)
     calculate(n)
     
     if mantissa == 0.0 and n.mantissa > 0.0:
@@ -193,8 +234,9 @@ func isLessThan(n):
     else:
         return false
 
+
 func isLessThanOrEqualTo(n):
-    n = type_check(n)
+    n = _typeCheck(n)
     calculate(n)
     if isEqualTo(n):
         return true
@@ -202,17 +244,20 @@ func isLessThanOrEqualTo(n):
         return true
     return false
 
+
 static func min(m, n):
     if m.isLessThan(n):
         return m
     else:
         return n
 
+
 static func max(m, n):
     if m.isLargerThan(n):
         return m
     else:
         return n
+
 
 func roundDown():
     if exponent == 0:
@@ -227,44 +272,163 @@ func roundDown():
         mantissa = stepify(mantissa, 0.0001)
     return self
 
+
 func log10(x):
     return log(x) * 0.4342944819032518
 
+
+static func setThousandName(name):
+    other.thousand_name = name
+    pass
+
+
+static func setPostfixSeparator(separator):
+    other.postfix_separator = separator
+    pass
+
+
+static func setReadingSeparator(separator):
+    other.reading_separator = separator
+    pass
+
+
 func toString():
-    if exponent < 10:
+    var mantissa_decimals = 0
+    if str(mantissa).find(".") >= 0:
+        mantissa_decimals = str(mantissa).split(".")[1].length()
+    if mantissa_decimals > exponent:
         return str(mantissa * pow(10, exponent))
     else:
-        return toScientific()
+        var mantissa_string = str(mantissa).replace(".", "")
+        for i in range(exponent-mantissa_decimals):
+            mantissa_string += "0"
+        return mantissa_string
+
 
 func toScientific():
     return str(mantissa) + "e" + str(exponent)
 
+
 func toFloat():
     return stepify(float(str(mantissa) + "e" + str(exponent)),0.01)
 
-func toAA(noDecimalsOnSmallValues=false):
-    var target = floor(exponent/3)
+
+func toPrefix(no_decimals_on_small_values = false):
     var hundreds = 1
     for i in range(exponent % 3):
         hundreds *= 10
+    var number = mantissa * hundreds
+    var result = ""
+    var split = str(number).split(".")
+    if no_decimals_on_small_values and int(exponent / 3) == 0:
+        result = split[0]
+    else:
+        if split[0].length() == 3:
+            result = str("%1.2f" % number).substr(0,3)
+        else:
+            result = str("%1.2f" % number).substr(0,4)
     
-    var prefix = mantissa * hundreds
+    return result
+
+
+func _latinPower(european_system):
+    if european_system:
+        return int(exponent / 3) / 2
+    return int(exponent / 3) - 1
+
+
+func _latinPrefix(european_system):
+    var ones = _latinPower(european_system) % 10
+    var tens = int(_latinPower(european_system) / 10) % 10
+    var hundreds = int(_latinPower(european_system) / 100) % 10
+    var millias = int(_latinPower(european_system) / 1000) % 10
+    
+    var prefix = ""    
+    if _latinPower(european_system) < 10:
+        prefix = latin_special[ones] + other.reading_separator + latin_tens[tens] + other.reading_separator + latin_hundreds[hundreds]
+    else:
+        prefix = latin_hundreds[hundreds] + other.reading_separator + latin_ones[ones] + other.reading_separator + latin_tens[tens]
+    
+    for i in range(millias):
+        prefix = "millia" + other.reading_separator + prefix
+    
+    return prefix.lstrip(other.reading_separator).rstrip(other.reading_separator)
+
+
+func _tillionOrIllion(european_system):
+    if exponent < 6:
+        return ""
+    var powerKilo = _latinPower(european_system) % 1000
+    if powerKilo < 5 and powerKilo > 0 and _latinPower(european_system) < 1000:
+        return ""
+    if powerKilo >= 7 and powerKilo <= 10 or int(powerKilo / 10) % 10 == 1:
+        return "i"
+    return "ti"
+
+
+func _llionOrLliard(european_system):
+    if exponent < 6:
+        return ""
+    if int(exponent/3) % 2 == 1 and european_system:
+        return "lliard"
+    return "llion"
+
+
+func toAmericanName(no_decimals_on_small_values = false):
+    return toLargeName(no_decimals_on_small_values, false)
+
+
+func toEuropeanName(no_decimals_on_small_values = false):
+    return toLargeName(no_decimals_on_small_values, true)
+
+
+func toLargeName(no_decimals_on_small_values = false, european_system = false):
+    if exponent < 6:
+        if exponent > 2:
+            return toPrefix(no_decimals_on_small_values) + other.postfix_separator + other.thousand_name
+        else:
+            return toPrefix(no_decimals_on_small_values)
+    
+    var postfix = _latinPrefix(european_system) + other.reading_separator + _tillionOrIllion(european_system) + _llionOrLliard(european_system)
+    
+    return toPrefix(no_decimals_on_small_values) + other.postfix_separator + postfix
+
+
+func toMetricSymbol(no_decimals_on_small_values = false):
+    var target = int(exponent / 3)
+    
+    if not postfixes_metric_symbol.has(str(target)):
+        return toScientific()
+    else:
+        return toPrefix(no_decimals_on_small_values) + other.postfix_separator + postfixes_metric_symbol[str(target)]
+
+
+func toMetricName(no_decimals_on_small_values = false):
+    var target = int(exponent / 3)
+    
+    if not postfixes_metric_name.has(str(target)):
+        return toScientific()
+    else:
+        return toPrefix(no_decimals_on_small_values) + other.postfix_separator + postfixes_metric_name[str(target)]
+
+
+func toAA(no_decimals_on_small_values = false):
+    var target = int(exponent / 3)
     var postfix = ""
-    
     var units = [0,0]
     var m = 0
     var u = 1
     
-    #this is quite slow for very big numbers, but we save the result for next similar target
-    if not postfixes_dict.has(str(target)):
+    # This is quite slow for very big numbers, but we save the result for next similar target
+    if not postfixes_aa.has(str(target)):
         print("UNIT " + str(target) + " NOT FOUND IN TABLE - GENERATING IT INSTEAD")
         while (m < target-5):
             m += 1
             units[u] += 1
-            if units[u] == alphabet.size():
+            if units[u] == alphabet_aa.size():
                 var found = false
                 for i in range(units.size()-1,-1,-1):
-                    if not found and units[i] < alphabet.size()-1:
+                    if not found and units[i] < alphabet_aa.size()-1:
                         units[i] += 1
                         found = true
                 units[u] = 0
@@ -275,19 +439,10 @@ func toAA(noDecimalsOnSmallValues=false):
                         units[i] = 0
         
         for i in range(units.size()):
-            postfix = postfix + str(alphabet[units[i]])
-        postfixes_dict[str(target)] = postfix
+            postfix = postfix + str(alphabet_aa[units[i]])
+        postfixes_aa[str(target)] = postfix
     else:
-        postfix = postfixes_dict[str(target)]
+        postfix = postfixes_aa[str(target)]
     
-    var result = ""    
-    var split = str(prefix).split(".")
-    if noDecimalsOnSmallValues and target == 0:
-        result = split[0]
-    else:
-        if split[0].length() == 3:
-            result = str("%1.2f" % prefix).substr(0,3)
-        else:
-            result = str("%1.2f" % prefix).substr(0,4)
-    
-    return result + postfix
+    return toPrefix(no_decimals_on_small_values) + other.postfix_separator + postfix
+
