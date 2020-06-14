@@ -13,8 +13,12 @@ And then do math on it like this:
 
 myBigNumber.plus(myBigNumber2)
 
-It supports very big numbers, with hundreds of digits so very useful in an idle game. Also it can format the number to a short string in AA-notation like 2.00M for two million, or for bigger numbers something like 4.56AA, 7.89ZZ or even bigger.
+It supports very big numbers, with hundreds of digits so very useful in an idle game. Also it can format the number to a short string in AA-notation like 2.00M for two million, or for bigger numbers something like 4.56AA, 7.89ZZ or even bigger. 
 
+This converts the Big number to an AA-notation string:
 myBigNumber.toAA()
 
-Simply put the Big.gd file in your project and you are good to go.
+You can also convert it to large name notation like billion, trillion or even octovigintillion like this:
+myBigNumber.toLargeName()
+
+Simply put the Big.gd file in your project as an Autoload and you are good to go.
