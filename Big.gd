@@ -178,6 +178,7 @@ func square():
 
 
 func calculate(big):
+    big.mantissa = stepify(big.mantissa, MANTISSA_PRECISSION)
     if big.mantissa >= 10.0 or big.mantissa < 1.0:
         var diff = int(floor(log10(big.mantissa)))
         var div = pow(10, diff)
