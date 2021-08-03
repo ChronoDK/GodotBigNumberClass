@@ -166,7 +166,7 @@ func power(n: int):
     return self
 
 
-func square():
+func squareRoot():
     if exponent % 2 == 0:
         mantissa = sqrt(mantissa)
         exponent = exponent/2
@@ -199,40 +199,22 @@ func calculate(big):
 
 func isEqualTo(n):
     n = _typeCheck(n)
-    #calculate(n)
+    calculate(n)
     return n.mantissa == mantissa and n.exponent == exponent
 
 
 func isLargerThan(n):
-    n = _typeCheck(n)
-    #calculate(n)
-    if mantissa == 0.0:
-        return false
-    if exponent > n.exponent:
-        return true
-    elif exponent == n.exponent:
-        if mantissa > n.mantissa:
-            return true
-        else:
-            return false
-    else:
-        return false
+    return !isLessThanOrEqualTo(n)
 
 
 func isLargerThanOrEqualTo(n):
-    n = _typeCheck(n)
-    #calculate(n)
-    if isLargerThan(n):
-        return true
-    if n.mantissa == mantissa and n.exponent == exponent:
-        return true
-    return false
+    return !isLessThan(n)
 
 
 func isLessThan(n):
     n = _typeCheck(n)
-    #calculate(n)
-    if mantissa == 0.0 and n.mantissa > 0.0:
+    calculate(n)
+    if mantissa == 0.0 and n.mantissa > 0.0 or mantissa < 0.0 and n.mantissa == 0.0:
         return true
     if exponent < n.exponent:
         return true
@@ -247,7 +229,7 @@ func isLessThan(n):
 
 func isLessThanOrEqualTo(n):
     n = _typeCheck(n)
-    #calculate(n)
+    calculate(n)
     if isLessThan(n):
         return true
     if n.mantissa == mantissa and n.exponent == exponent:
