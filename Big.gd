@@ -177,6 +177,12 @@ func squareRoot():
     return self
 
 
+func modulo(n):
+    var divide_i = get_script().new(self)
+    divide_i.divide(n).roundDown()
+    return self.divide(n).minus(divide_i).multiply(n)
+
+
 func calculate(big):
     big.mantissa = stepify(big.mantissa, MANTISSA_PRECISSION)
     if big.mantissa >= 10.0 or big.mantissa < 1.0:
