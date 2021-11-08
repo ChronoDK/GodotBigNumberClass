@@ -2,7 +2,7 @@ class_name Big
 extends Reference
 # Big number class for use in idle / incremental games and other games that needs very large numbers
 # Can format large numbers using a variety of notation methods:
-# AA notation like AA, AB, AC etc. 
+# AA notation like AA, AB, AC etc.
 # Metric symbol notation k, m, G, T etc.
 # Metric name notation kilo, mega, giga, tera etc.
 # Long names like octo-vigin-tillion or millia-nongen-quin-vigin-tillion (based on work by Landon Curt Noll)
@@ -143,7 +143,7 @@ func power(n: int):
         mantissa = 1.0
         exponent = 0
         return self
-    
+
     var y_mantissa = 1
     var y_exponent = 0
 
@@ -152,14 +152,14 @@ func power(n: int):
         if n % 2 == 0: #n is even
             exponent = exponent + exponent
             mantissa = mantissa * mantissa
-            n = n / 2
+            n = n / 2  # warning-ignore:integer_division
         else:
             y_mantissa = mantissa * y_mantissa
             y_exponent = exponent + y_exponent
             exponent = exponent + exponent
             mantissa = mantissa * mantissa
-            n = (n-1) / 2
-    
+            n = (n-1) / 2  # warning-ignore:integer_division
+
     exponent = y_exponent + exponent
     mantissa = y_mantissa * mantissa
     calculate(self)
@@ -169,10 +169,10 @@ func power(n: int):
 func squareRoot():
     if exponent % 2 == 0:
         mantissa = sqrt(mantissa)
-        exponent = exponent/2
+        exponent = exponent/2  # warning-ignore:integer_division
     else:
         mantissa = sqrt(mantissa*10)
-        exponent = (exponent-1)/2
+        exponent = (exponent-1)/2  # warning-ignore:integer_division
     calculate(self)
     return self
 
@@ -250,9 +250,11 @@ static func max(m, n):
     else:
         return n
 
+
 static func abs(n):
     n.mantissa = abs(n.mantissa)
     return n
+
 
 func roundDown():
     if exponent == 0:
@@ -325,7 +327,7 @@ func toString():
         return str(mantissa * pow(10, exponent))
     else:
         var mantissa_string = str(mantissa).replace(".", "")
-        for i in range(exponent-mantissa_decimals):
+        for _i in range(exponent-mantissa_decimals):
             mantissa_string += "0"
         return mantissa_string
 
@@ -344,25 +346,25 @@ func toFloat():
 
 func toPrefixOld(no_decimals_on_small_values = false):
     var hundreds = 1
-    for i in range(exponent % 3):
+    for _i in range(exponent % 3):
         hundreds *= 10
     var number = mantissa * hundreds
     var result = ""
     var split = str(number).split(".")
-    if no_decimals_on_small_values and int(exponent / 3) == 0:
+    if no_decimals_on_small_values and int(exponent / 3) == 0:  # warning-ignore:integer_division
         result = split[0]
     else:
         if split[0].length() == 3:
             result = str("%1.2f" % number).substr(0,3)
         else:
             result = str("%1.2f" % number).substr(0,4)
-    
+
     return result
 
 
 func toPrefix(no_decimals_on_small_values = false, use_thousand_symbol=true, force_decimals=true):
     var hundreds = 1
-    for i in range(exponent % 3):
+    for _i in range(exponent % 3):
         hundreds *= 10
     var number:float = mantissa * hundreds
     var split = str(number).split(".")
@@ -371,7 +373,7 @@ func toPrefix(no_decimals_on_small_values = false, use_thousand_symbol=true, for
             split.append("")
         split[1] += "000"
     var result = split[0]
-    if no_decimals_on_small_values and int(exponent / 3) == 0:
+    if no_decimals_on_small_values and int(exponent / 3) == 0:  # warning-ignore:integer_division
         pass
     elif exponent < 3:
         if split.size() > 1 and other.small_decimals > 0:
@@ -388,14 +390,15 @@ func toPrefix(no_decimals_on_small_values = false, use_thousand_symbol=true, for
     else:
         if split.size() > 1 and other.big_decimals > 0:
             result += other.decimal_separator + split[1].substr(0,min(other.big_decimals, 4 - split[0].length() if other.dynamic_decimals else other.small_decimals))
-    
+
     return result
 
 
+# warning-ignore:integer_division
 func _latinPower(european_system):
     if european_system:
-        return int(exponent / 3) / 2
-    return int(exponent / 3) - 1
+        return int(exponent / 3) / 2  # warning-ignore:integer_division
+    return int(exponent / 3) - 1  # warning-ignore:integer_division
 
 
 func _latinPrefix(european_system):
@@ -403,16 +406,16 @@ func _latinPrefix(european_system):
     var tens = int(_latinPower(european_system) / 10) % 10
     var hundreds = int(_latinPower(european_system) / 100) % 10
     var millias = int(_latinPower(european_system) / 1000) % 10
-    
-    var prefix = ""    
+
+    var prefix = ""
     if _latinPower(european_system) < 10:
         prefix = latin_special[ones] + other.reading_separator + latin_tens[tens] + other.reading_separator + latin_hundreds[hundreds]
     else:
         prefix = latin_hundreds[hundreds] + other.reading_separator + latin_ones[ones] + other.reading_separator + latin_tens[tens]
-    
-    for i in range(millias):
+
+    for _i in range(millias):
         prefix = "millia" + other.reading_separator + prefix
-    
+
     return prefix.lstrip(other.reading_separator).rstrip(other.reading_separator)
 
 
@@ -430,7 +433,7 @@ func _tillionOrIllion(european_system):
 func _llionOrLliard(european_system):
     if exponent < 6:
         return ""
-    if int(exponent/3) % 2 == 1 and european_system:
+    if int(exponent/3) % 2 == 1 and european_system:  # warning-ignore:integer_division
         return "lliard"
     return "llion"
 
@@ -456,15 +459,15 @@ func toLongName(no_decimals_on_small_values = false, european_system = false):
             return toPrefix(no_decimals_on_small_values) + other.postfix_separator + other.thousand_name
         else:
             return toPrefix(no_decimals_on_small_values)
-    
+
     var postfix = _latinPrefix(european_system) + other.reading_separator + _tillionOrIllion(european_system) + _llionOrLliard(european_system)
-    
+
     return toPrefix(no_decimals_on_small_values) + other.postfix_separator + postfix
 
 
 func toMetricSymbol(no_decimals_on_small_values = false):
-    var target = int(exponent / 3)
-    
+    var target = int(exponent / 3)  # warning-ignore:integer_division
+
     if not postfixes_metric_symbol.has(str(target)):
         return toScientific()
     else:
@@ -472,8 +475,8 @@ func toMetricSymbol(no_decimals_on_small_values = false):
 
 
 func toMetricName(no_decimals_on_small_values = false):
-    var target = int(exponent / 3)
-    
+    var target = int(exponent / 3)  # warning-ignore:integer_division
+
     if not postfixes_metric_name.has(str(target)):
         return toScientific()
     else:
@@ -481,9 +484,9 @@ func toMetricName(no_decimals_on_small_values = false):
 
 
 func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force_decimals=false):
-    var target = int(exponent / 3)
+    var target = int(exponent / 3)  # warning-ignore:integer_division
     var postfix = ""
-    
+
     # This is quite slow for very big numbers, but we save the result for next similar target
     if not postfixes_aa.has(str(target)):
         var units = [0,0]
@@ -505,22 +508,22 @@ func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force
                     u += 1
                     for i in range(units.size()):
                         units[i] = 0
-        
+
         for i in range(units.size()):
             postfix = postfix + str(alphabet_aa[units[i]])
         postfixes_aa[str(target)] = postfix
     else:
         postfix = postfixes_aa[str(target)]
-    
+
     if not use_thousand_symbol and target == 1:
         postfix = ""
-    
+
     var prefix = toPrefix(no_decimals_on_small_values, use_thousand_symbol, force_decimals)
-    
+
 #    if remove_trailing_zeroes and other.decimal_separator in prefix:
 #        while prefix.ends_with("0"):
 #            prefix = prefix.rstrip("0")
 #        while prefix.ends_with(other.decimal_separator):
 #            prefix = prefix.rstrip(other.decimal_separator)
-    
+
     return prefix + other.postfix_separator + postfix
