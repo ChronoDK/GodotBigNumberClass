@@ -2,7 +2,7 @@
 
 Use very BIG numbers in Godot Engine games.
 
-It supports very big numbers, with hundreds of digits so very useful in an idle game. Also it can format the number to a short string in AA-notation like 2.00M for two million, or for bigger numbers something like 4.56AA, 7.89ZZ or even bigger.
+It supports very big numbers, with hundreds of digits so very useful in an idle game. It can also format the number to a short string in AA-notation like 2.00M for two million, or for bigger numbers something like 4.56AA, 7.89ZZ or even bigger.
 
 ## Setup
 
@@ -20,15 +20,17 @@ const Big = preload("res://path/to/Big.gd")
 
 ## Creating an instance
 
-Multiple constructors can be used to instanciate a Big number:
+Multiple constructors can be used to instanciate a `Big` number:
 
 ```GDScript
-var my_big_number_a = Big.new(100)  # From an integer
-var my_big_number_b = Big.new(2, 6) # Using a mantissa and exponent; here means 2000000
-var my_big_number_c = Big.new(my_big_number_b) # As a copy of another big number; see why below
+var big_int = Big.new(100)  # From an integer
+var big_exp = Big.new(2, 6) # Using a mantissa and exponent;
+                            # here means 2000000
+var big_cpy = Big.new(big_exp)  # As a copy of another big number;
+                                # see why below
 ```
 
-All operations executed on a Big number modify that instance. As such, you will probably often find yourself creating temporary copies of other Big numbers to run those operations while leaving the original value untouched.
+All operations executed on a `Big` number modify that instance. As such, you will probably often find yourself creating temporary copies of other `Big` numbers to run those operations while leaving the original value untouched.
 
 ```GDScript
 var unit_cost: Big = Big.new(2, 6)
@@ -40,12 +42,13 @@ func cost(count:Big) -> Big:
 
 ## Mathematical operations
 
-The normal operands used for integer and floating-point operations (e.g. `+`, `-`, `*`, `/`, `%`) cannot be used on a Big number.
+The normal operands used for integer and floating-point operations (e.g. `+`, `-`, `*`, `/`, `%`) cannot be used on a `Big` number.
 
 Instead, you can use the provided functions:
 
 ```GDScript
-my_big_number.plus(value)       # 'value' can be numeric or another Big number
+# 'value' can be numeric or another Big number
+my_big_number.plus(value)
 my_big_number.minus(value)
 my_big_number.divide(value)
 my_big_number.power(int_value)  # Only accepts an 'int' value
@@ -69,7 +72,9 @@ Again, the normal operands cannot be used here (e.g. `>`, `>=`, `==`, `<`, `<=`)
 Instead, you can use the provided functions:
 
 ```GDScript
-my_big_number.isLargerThan(value)  # 'value' can be numeric or another Big number
+# 'value' can be numeric or another Big number
+
+my_big_number.isLargerThan(value)
 my_big_number.isLargerThanOrEqualTo(value)
 my_big_number.isEqualTo(value)
 my_big_number.isLessThanOrEqualTo(value)
@@ -81,20 +86,59 @@ my_big_number.isLessThan(value)
 The following static functions are available:
 
 ```GDScript
-var small_number = Big.min(big_value, value)  # 'big_value' must be a Big number,
-                                              # 'value' can be numeric or another Big number
-var large_number = Big.max(big_value, value)
-var positive_number = Big.abs(big_value)
+# 'big_value' must be a Big number;
+# 'value' can be numeric or another Big number
+
+var smallest = Big.min(big_value, value)
+var largest = Big.max(big_value, value)
+var positive = Big.abs(big_value)
 ```
 
 ## Formatting as a string
 
-(TODO)
+An important aspect with big numbers is being able to display them in a way that is readable and makes sense for the player. The following functions can be used to do so:
 
-This converts the Big number to an AA-notation string:
+```GDScript
+var big = Big.new(12345, 12)
+print(big.toAA())               # 12,34aa
+print(big.toAmericanName())     # 12,34quadrillion
+print(big.toEuropeanName())     # 12,34billiard
+print(big.toLongName())         # 12,34quadrillion
+print(big.toMetricName())       # 12,34peta
+print(big.toMetricSymbol())     # 12,34P
+print(big.toPrefix())           # 12,34
+print(big.toScientific())       # 1.2345e16
+print(big.toShortScientific())  # 1.2e16
+print(big.toString())           # 12345000000000000
+```
 
-myBigNumber.toAA()
+Some of the functions have arguments with default values, not displayed in the snippet above.
 
-You can also convert it to large name notation like billion, trillion or even octovigintillion like this:
+You can tweak the way the strings are formatted by calling the following static functions:
 
-myBigNumber.toLargeName()
+```GDScript
+Big.setThousandName("string_value")       # Defaults to "thousand"
+Big.setThousandSeparator("string_value")  # Defaults to "."
+Big.setDecimalSeparator("string_value")   # Defaults to ","
+Big.setPostfixSeparator("string_value")   # Defaults to an empty string
+Big.setReadingSeparator("string_value")   # Defaults to an empty string
+
+Big.setDynamicDecimals(bool_value)  # Defaults to true
+
+Big.setSmallDecimals(int_value)     # Defaults to 2
+Big.setThousandDecimals(int_value)  # Defaults to 2
+Big.setBigDecimals(int_value)       # Defaults to 2
+```
+
+For example:
+
+```GDScript
+var big = Big.new(12345, 12)
+print(big.toAA())  # With default settings: 12,34aa
+
+Big.setPostfixSeparator(" ")
+Big.setDecimalSeparator(".")
+Big.setDynamicDecimals(false)
+Big.setSmallDecimals(1)
+print(big.toAA())  # With modified settings: 12.3 aa
+```
