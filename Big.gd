@@ -28,7 +28,6 @@ const other = {"dynamic_decimals":true, "small_decimals":2, "thousand_decimals":
 const MAX_MANTISSA = 1209600.0
 const MANTISSA_PRECISSION = 0.0000001
 
-#var Self = load("res://Big.gd")
 
 func _init(m, e := 0):
     if typeof(m) == TYPE_STRING:
@@ -77,7 +76,7 @@ func plus(n):
     n = _typeCheck(n)
     _sizeCheck(n.mantissa)
     var exp_diff = n.exponent - exponent
-    if exp_diff < 300:
+    if exp_diff < 248:
         var scaled_mantissa = n.mantissa * pow(10, exp_diff)
         mantissa += scaled_mantissa
     elif isLessThan(n):
@@ -91,7 +90,7 @@ func minus(n):
     n = _typeCheck(n)
     _sizeCheck(n.mantissa)
     var exp_diff = n.exponent - exponent #abs?
-    if exp_diff < 300:
+    if exp_diff < 248:
         var scaled_mantissa = n.mantissa * pow(10, exp_diff)
         mantissa -= scaled_mantissa
     elif isLessThan(n):
@@ -104,13 +103,8 @@ func minus(n):
 func multiply(n):
     n = _typeCheck(n)
     _sizeCheck(n.mantissa)
-    var new_exponent = n.exponent + exponent
-    var new_mantissa = n.mantissa * mantissa
-    while new_mantissa >= 10.0:
-        new_mantissa /= 10.0
-        new_exponent += 1
-    mantissa = new_mantissa
-    exponent = new_exponent
+    exponent = exponent + n.exponent
+    mantissa = mantissa * n.mantissa
     calculate(self)
     return self
 
@@ -121,14 +115,8 @@ func divide(n):
     if n.mantissa == 0:
         printerr("BIG ERROR: DIVIDE BY ZERO OR LESS THAN " + str(MANTISSA_PRECISSION))
         return self
-
-    var new_exponent = exponent - n.exponent
-    var new_mantissa = mantissa / n.mantissa
-    while new_mantissa < 1.0 and new_mantissa > 0.0:
-        new_mantissa *= 10.0
-        new_exponent -= 1
-    mantissa = new_mantissa
-    exponent = new_exponent
+    exponent = exponent - n.exponent
+    mantissa = mantissa / n.mantissa
     calculate(self)
     return self
 
@@ -178,26 +166,33 @@ func squareRoot():
 
 
 func modulo(n):
-    var divide_i = get_script().new(self)
-    divide_i.divide(n).roundDown()
-    return self.divide(n).minus(divide_i).multiply(n)
+    n = _typeCheck(n)
+    _sizeCheck(n.mantissa)
+    var big = {"mantissa":mantissa, "exponent":exponent}
+    divide(n)
+    roundDown()
+    multiply(n)
+    minus(big)
+    mantissa = abs(mantissa)
+    return self
 
 
 func calculate(big):
-    big.mantissa = stepify(big.mantissa, MANTISSA_PRECISSION)
     if big.mantissa >= 10.0 or big.mantissa < 1.0:
         var diff = int(floor(log10(big.mantissa)))
-        var div = pow(10, diff)
-        if div > 0.0:
-            big.mantissa /= div
-            big.exponent += diff
+        if diff > -10 and diff < 248:
+            var div = pow(10, diff)
+            if div > MANTISSA_PRECISSION:
+                big.mantissa /= div
+                big.exponent += diff
     while big.exponent < 0:
         big.mantissa *= 0.1
         big.exponent += 1
     while big.mantissa >= 10.0:
         big.mantissa *= 0.1
         big.exponent += 1
-    if big.mantissa == 0.0:
+    if big.mantissa == 0:
+        big.mantissa = 0.0
         big.exponent = 0
     big.mantissa = stepify(big.mantissa, MANTISSA_PRECISSION)
     pass
@@ -206,7 +201,7 @@ func calculate(big):
 func isEqualTo(n):
     n = _typeCheck(n)
     calculate(n)
-    return n.mantissa == mantissa and n.exponent == exponent
+    return n.exponent == exponent and is_equal_approx(n.mantissa, mantissa)
 
 
 func isLargerThan(n):
@@ -220,7 +215,7 @@ func isLargerThanOrEqualTo(n):
 func isLessThan(n):
     n = _typeCheck(n)
     calculate(n)
-    if mantissa == 0.0 and n.mantissa > 0.0 or mantissa < 0.0 and n.mantissa == 0.0:
+    if mantissa == 0 and n.mantissa > MANTISSA_PRECISSION or mantissa < MANTISSA_PRECISSION and n.mantissa == 0:
         return true
     if exponent < n.exponent:
         return true
@@ -238,7 +233,7 @@ func isLessThanOrEqualTo(n):
     calculate(n)
     if isLessThan(n):
         return true
-    if n.mantissa == mantissa and n.exponent == exponent:
+    if n.exponent == exponent and is_equal_approx(n.mantissa, mantissa):
         return true
     return false
 
@@ -265,15 +260,15 @@ static func abs(n):
 func roundDown():
     if exponent == 0:
         mantissa = floor(mantissa)
-    elif exponent == 1:
-        mantissa = stepify(mantissa, 0.1)
-    elif exponent == 2:
-        mantissa = stepify(mantissa, 0.01)
-    elif exponent == 3:
-        mantissa = stepify(mantissa, 0.001)
+        return self
     else:
-        mantissa = stepify(mantissa, 0.0001)
-    return self
+        var precision = 1.0
+        for i in range(min(8, exponent)):
+            precision /= 10.0
+        if precision < MANTISSA_PRECISSION:
+            precision = MANTISSA_PRECISSION
+        mantissa = stepify(mantissa, precision)
+        return self
 
 
 func log10(x):
@@ -330,7 +325,10 @@ func toString():
     if str(mantissa).find(".") >= 0:
         mantissa_decimals = str(mantissa).split(".")[1].length()
     if mantissa_decimals > exponent:
-        return str(mantissa * pow(10, exponent))
+        if exponent < 248:
+            return str(mantissa * pow(10, exponent))
+        else:
+            return toScientific()
     else:
         var mantissa_string = str(mantissa).replace(".", "")
         for _i in range(exponent-mantissa_decimals):
