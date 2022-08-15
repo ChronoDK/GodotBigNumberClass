@@ -103,8 +103,13 @@ func minus(n):
 func multiply(n):
     n = _typeCheck(n)
     _sizeCheck(n.mantissa)
-    exponent = exponent + n.exponent
-    mantissa = mantissa * n.mantissa
+    var new_exponent = n.exponent + exponent
+    var new_mantissa = n.mantissa * mantissa
+    while new_mantissa >= 10.0:
+        new_mantissa /= 10.0
+        new_exponent += 1
+    mantissa = new_mantissa
+    exponent = new_exponent
     calculate(self)
     return self
 
@@ -115,8 +120,13 @@ func divide(n):
     if n.mantissa == 0:
         printerr("BIG ERROR: DIVIDE BY ZERO OR LESS THAN " + str(MANTISSA_PRECISSION))
         return self
-    exponent = exponent - n.exponent
-    mantissa = mantissa / n.mantissa
+    var new_exponent = exponent - n.exponent
+    var new_mantissa = mantissa / n.mantissa
+    while new_mantissa < 1.0 and new_mantissa > 0.0:
+        new_mantissa *= 10.0
+        new_exponent -= 1
+    mantissa = new_mantissa
+    exponent = new_exponent
     calculate(self)
     return self
 
