@@ -53,7 +53,7 @@ my_big_number.minus(value)
 my_big_number.divide(value)
 my_big_number.power(int_value)  # Only accepts an 'int' value
 my_big_number.squareRoot()
-my_big_number.module(value)
+my_big_number.modulo(value)
 my_big_number.roundDown()
 my_big_number.log10(int_value)
 ```
