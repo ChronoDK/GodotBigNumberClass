@@ -62,7 +62,7 @@ func _sizeCheck(m):
         printerr("BIG ERROR: MANTISSA TOO LARGE, PLEASE USE EXPONENT OR SCIENTIFIC NOTATION")
 
 
-func _typeCheck(n):
+static func _typeCheck(n):
     if typeof(n) == TYPE_INT or typeof(n) == TYPE_REAL:
         return {"mantissa":float(n), "exponent":0}
     elif typeof(n) == TYPE_STRING:
@@ -249,6 +249,7 @@ func isLessThanOrEqualTo(n):
 
 
 static func min(m, n):
+    m = _typeCheck(m)
     if m.isLessThan(n):
         return m
     else:
@@ -256,6 +257,7 @@ static func min(m, n):
 
 
 static func max(m, n):
+    m = _typeCheck(m)
     if m.isLargerThan(n):
         return m
     else:
