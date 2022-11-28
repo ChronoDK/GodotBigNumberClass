@@ -225,7 +225,7 @@ func isLargerThanOrEqualTo(n):
 func isLessThan(n):
     n = _typeCheck(n)
     calculate(n)
-    if mantissa == 0 and n.mantissa > MANTISSA_PRECISSION or mantissa < MANTISSA_PRECISSION and n.mantissa == 0:
+    if mantissa == 0 and (n.mantissa > MANTISSA_PRECISSION or mantissa < MANTISSA_PRECISSION) and n.mantissa == 0:
         return false
     if exponent < n.exponent:
         return true
