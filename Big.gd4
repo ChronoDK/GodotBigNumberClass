@@ -17,12 +17,12 @@ var exponent: int = 1
 const postfixes_metric_symbol = {"0":"", "1":"k", "2":"M", "3":"G", "4":"T", "5":"P", "6":"E", "7":"Z", "8":"Y", "9":"R", "10":"Q"}
 const postfixes_metric_name = {"0":"", "1":"kilo", "2":"mega", "3":"giga", "4":"tera", "5":"peta", "6":"exa", "7":"zetta", "8":"yotta", "9":"ronna", "10":"quetta"}
 static var postfixes_aa = {"0":"", "1":"k", "2":"m", "3":"b", "4":"t", "5":"aa", "6":"ab", "7":"ac", "8":"ad", "9":"ae", "10":"af", "11":"ag", "12":"ah", "13":"ai", "14":"aj", "15":"ak", "16":"al", "17":"am", "18":"an", "19":"ao", "20":"ap", "21":"aq", "22":"ar", "23":"as", "24":"at", "25":"au", "26":"av", "27":"aw", "28":"ax", "29":"ay", "30":"az", "31":"ba", "32":"bb", "33":"bc", "34":"bd", "35":"be", "36":"bf", "37":"bg", "38":"bh", "39":"bi", "40":"bj", "41":"bk", "42":"bl", "43":"bm", "44":"bn", "45":"bo", "46":"bp", "47":"bq", "48":"br", "49":"bs", "50":"bt", "51":"bu", "52":"bv", "53":"bw", "54":"bx", "55":"by", "56":"bz", "57":"ca"}
-const alphabet_aa = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+const alphabet_aa: Array[String] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
 
-const latin_ones = ["", "un", "duo", "tre", "quattuor", "quin", "sex", "septen", "octo", "novem"]
-const latin_tens = ["", "dec", "vigin", "trigin", "quadragin", "quinquagin", "sexagin", "septuagin", "octogin", "nonagin"]
-const latin_hundreds = ["", "cen", "duocen", "trecen", "quadringen", "quingen", "sescen", "septingen", "octingen", "nongen"]
-const latin_special = ["", "mi", "bi", "tri", "quadri", "quin", "sex", "sept", "oct", "non"]
+const latin_ones: Array[String] = ["", "un", "duo", "tre", "quattuor", "quin", "sex", "septen", "octo", "novem"]
+const latin_tens: Array[String] = ["", "dec", "vigin", "trigin", "quadragin", "quinquagin", "sexagin", "septuagin", "octogin", "nonagin"]
+const latin_hundreds: Array[String] = ["", "cen", "duocen", "trecen", "quadringen", "quingen", "sescen", "septingen", "octingen", "nongen"]
+const latin_special: Array[String] = ["", "mi", "bi", "tri", "quadri", "quin", "sex", "sept", "oct", "non"]
 
 static var other = {"dynamic_decimals":true, "small_decimals":2, "thousand_decimals":2, "big_decimals":2, "thousand_separator":".", "decimal_separator":",", "postfix_separator":"", "reading_separator":"", "thousand_name":"thousand"}
 
@@ -57,7 +57,7 @@ func _sizeCheck(m):
 
 func _typeCheck(n):
 	if typeof(n) == TYPE_INT or typeof(n) == TYPE_FLOAT:
-		return {"mantissa":float(n), "exponent":0}
+		return {"mantissa":float(n), "exponent":int(0)}
 	elif typeof(n) == TYPE_STRING:
 		var split = n.split("e")
 		return {"mantissa":float(split[0]), "exponent":int(0 if split.size() == 1 else split[1])}
@@ -65,7 +65,7 @@ func _typeCheck(n):
 		return n
 
 
-func plus(n):
+func plus(n) -> Big:
 	n = _typeCheck(n)
 	_sizeCheck(n.mantissa)
 	var exp_diff = n.exponent - exponent
@@ -79,7 +79,7 @@ func plus(n):
 	return self
 
 
-func minus(n):
+func minus(n) -> Big:
 	n = _typeCheck(n)
 	_sizeCheck(n.mantissa)
 	var exp_diff = n.exponent - exponent #abs?
@@ -93,7 +93,7 @@ func minus(n):
 	return self
 
 
-func multiply(n):
+func multiply(n) -> Big:
 	n = _typeCheck(n)
 	_sizeCheck(n.mantissa)
 	var new_exponent = n.exponent + exponent
@@ -107,7 +107,7 @@ func multiply(n):
 	return self
 
 
-func divide(n):
+func divide(n) -> Big:
 	n = _typeCheck(n)
 	_sizeCheck(n.mantissa)
 	if n.mantissa == 0:
@@ -124,7 +124,7 @@ func divide(n):
 	return self
 
 
-func power(n: int):
+func power(n: int) -> Big:
 	if n < 0:
 		printerr("BIG ERROR: NEGATIVE EXPONENTS NOT SUPPORTED!")
 		mantissa = 1.0
@@ -157,7 +157,7 @@ func power(n: int):
 	return self
 
 
-func squareRoot():
+func squareRoot() -> Big:
 	if exponent % 2 == 0:
 		mantissa = sqrt(mantissa)
 		exponent = exponent/2
@@ -168,7 +168,7 @@ func squareRoot():
 	return self
 
 
-func modulo(n):
+func modulo(n) -> Big:
 	n = _typeCheck(n)
 	_sizeCheck(n.mantissa)
 	var big = {"mantissa":mantissa, "exponent":exponent}
@@ -201,21 +201,21 @@ func calculate(big):
 	pass
 
 
-func isEqualTo(n):
+func isEqualTo(n) -> bool:
 	n = _typeCheck(n)
 	calculate(n)
 	return n.exponent == exponent and is_equal_approx(n.mantissa, mantissa)
 
 
-func isLargerThan(n):
+func isLargerThan(n) -> bool:
 	return !isLessThanOrEqualTo(n)
 
 
-func isLargerThanOrEqualTo(n):
+func isLargerThanOrEqualTo(n) -> bool:
 	return !isLessThan(n)
 
 
-func isLessThan(n):
+func isLessThan(n) -> bool:
 	n = _typeCheck(n)
 	calculate(n)
 	if mantissa == 0 and (n.mantissa > MANTISSA_PRECISSION or mantissa < MANTISSA_PRECISSION) and n.mantissa == 0:
@@ -231,7 +231,7 @@ func isLessThan(n):
 		return false
 
 
-func isLessThanOrEqualTo(n):
+func isLessThanOrEqualTo(n) -> bool:
 	n = _typeCheck(n)
 	calculate(n)
 	if isLessThan(n):
@@ -241,7 +241,7 @@ func isLessThanOrEqualTo(n):
 	return false
 
 
-static func minValue(m, n):
+static func minValue(m, n) -> Big:
 	m = _typeCheck(m)
 	if m.isLessThan(n):
 		return m
@@ -249,7 +249,7 @@ static func minValue(m, n):
 		return n
 
 
-static func maxValue(m, n):
+static func maxValue(m, n) -> Big:
 	m = _typeCheck(m)
 	if m.isLargerThan(n):
 		return m
@@ -257,12 +257,12 @@ static func maxValue(m, n):
 		return n
 
 
-static func absValue(n):
+static func absValue(n) -> Big:
 	n.mantissa = abs(n.mantissa)
 	return n
 
 
-func roundDown():
+func roundDown() -> Big:
 	if exponent == 0:
 		mantissa = floor(mantissa)
 		return self
@@ -325,7 +325,7 @@ static func setBigDecimals(d):
 	pass
 
 
-func toString():
+func toString() -> String:
 	var mantissa_decimals = 0
 	if str(mantissa).find(".") >= 0:
 		mantissa_decimals = str(mantissa).split(".")[1].length()
@@ -341,19 +341,19 @@ func toString():
 		return mantissa_string
 
 
-func toScientific():
+func toScientific() -> String:
 	return str(mantissa) + "e" + str(exponent)
 
 
-func toShortScientific(no_decimals_on_small_values = false, use_thousand_symbol = true, force_decimals=false):
+func toShortScientific(no_decimals_on_small_values = false, use_thousand_symbol = true, force_decimals=false) -> String:
 	if exponent < 3:
-		return str(snapped(mantissa * pow(10, exponent), 0.1)).replace(".", other.decimal_separator)
+		return str(snappedf(mantissa * pow(10, exponent), 0.1)).replace(".", other.decimal_separator)
 	else:
 		return toPrefix(no_decimals_on_small_values, use_thousand_symbol, force_decimals, true) + "e" + str(exponent)
 
 
-func toFloat():
-	return snapped(float(str(mantissa) + "e" + str(exponent)),0.01)
+func toFloat() -> float:
+	return snappedf(float(str(mantissa) + "e" + str(exponent)),0.01)
 
 
 func toPrefixOld(no_decimals_on_small_values = false):
@@ -499,31 +499,15 @@ func toMetricName(no_decimals_on_small_values = false) -> String:
 func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force_decimals=false) -> String:
 	var target = int(exponent / 3)
 	var postfix = ""
-
-	# This is quite slow for very big numbers, but we save the result for next similar target
+	
 	if not postfixes_aa.has(str(target)):
-		var units = [0,0]
-		var m = 0
-		var u = 1
-		#print("UNIT " + str(target) + " NOT FOUND IN TABLE - GENERATING IT INSTEAD")
-		while (m < target-5):
-			m += 1
-			units[u] += 1
-			if units[u] == alphabet_aa.size():
-				var found = false
-				for i in range(units.size()-1,-1,-1):
-					if not found and units[i] < alphabet_aa.size()-1:
-						units[i] += 1
-						found = true
-				units[u] = 0
-				if not found:
-					units.append(0)
-					u += 1
-					for i in range(units.size()):
-						units[i] = 0
-
-		for i in range(units.size()):
-			postfix = postfix + str(alphabet_aa[units[i]])
+		target += 22
+		var base:int = alphabet_aa.size()
+		while target > 0:
+			target -= 1
+			var digit:int = target % base
+			postfix = alphabet_aa[digit] + postfix
+			target /= base
 		postfixes_aa[str(target)] = postfix
 	else:
 		postfix = postfixes_aa[str(target)]
@@ -532,11 +516,5 @@ func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force
 		postfix = ""
 
 	var prefix = toPrefix(no_decimals_on_small_values, use_thousand_symbol, force_decimals)
-
-#    if remove_trailing_zeroes and other.decimal_separator in prefix:
-#        while prefix.ends_with("0"):
-#            prefix = prefix.rstrip("0")
-#        while prefix.ends_with(other.decimal_separator):
-#            prefix = prefix.rstrip(other.decimal_separator)
 
 	return prefix + other.postfix_separator + postfix
