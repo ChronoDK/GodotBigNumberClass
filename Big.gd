@@ -500,33 +500,17 @@ func toMetricName(no_decimals_on_small_values = false):
 
 
 func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force_decimals=false):
-    var target = int(exponent / 3)  # warning-ignore:integer_division
+    var target = int(exponent / 3)
     var postfix = ""
 
-    # This is quite slow for very big numbers, but we save the result for next similar target
     if not postfixes_aa.has(str(target)):
-        var units = [0,0]
-        var m = 0
-        var u = 1
-        #print("UNIT " + str(target) + " NOT FOUND IN TABLE - GENERATING IT INSTEAD")
-        while (m < target-5):
-            m += 1
-            units[u] += 1
-            if units[u] == alphabet_aa.size():
-                var found = false
-                for i in range(units.size()-1,-1,-1):
-                    if not found and units[i] < alphabet_aa.size()-1:
-                        units[i] += 1
-                        found = true
-                units[u] = 0
-                if not found:
-                    units.append(0)
-                    u += 1
-                    for i in range(units.size()):
-                        units[i] = 0
-
-        for i in range(units.size()):
-            postfix = postfix + str(alphabet_aa[units[i]])
+        target += 22
+        var base:int = alphabet_aa.size()
+        while target > 0:
+            target -= 1
+            var digit:int = target % base
+            postfix = alphabet_aa[digit] + postfix
+            target /= base
         postfixes_aa[str(target)] = postfix
     else:
         postfix = postfixes_aa[str(target)]
@@ -535,11 +519,5 @@ func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force
         postfix = ""
 
     var prefix = toPrefix(no_decimals_on_small_values, use_thousand_symbol, force_decimals)
-
-#    if remove_trailing_zeroes and other.decimal_separator in prefix:
-#        while prefix.ends_with("0"):
-#            prefix = prefix.rstrip("0")
-#        while prefix.ends_with(other.decimal_separator):
-#            prefix = prefix.rstrip(other.decimal_separator)
 
     return prefix + other.postfix_separator + postfix
