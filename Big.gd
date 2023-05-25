@@ -23,11 +23,13 @@ const latin_tens = ["", "dec", "vigin", "trigin", "quadragin", "quinquagin", "se
 const latin_hundreds = ["", "cen", "duocen", "trecen", "quadringen", "quingen", "sescen", "septingen", "octingen", "nongen"]
 const latin_special = ["", "mi", "bi", "tri", "quadri", "quin", "sex", "sept", "oct", "non"]
 
-const other = {"dynamic_decimals":true, "small_decimals":2, "thousand_decimals":2, "big_decimals":2, "thousand_separator":".", "decimal_separator":",", "postfix_separator":"", "reading_separator":"", "thousand_name":"thousand"}
+const other = {"dynamic_decimals":true, "dynamic_numbers":4, "small_decimals":2, "thousand_decimals":2, "big_decimals":2, "scientific_decimals": 2, "logarithmic_decimals":3, "thousand_separator":".", "decimal_separator":",", "postfix_separator":"", "reading_separator":"", "thousand_name":"thousand"}
 
 const MAX_MANTISSA = 1209600.0
 const MANTISSA_PRECISSION = 0.0000001
 
+const MIN_INTEGER: int = -9223372036854775807
+const MAX_INTEGER: int = 9223372036854775806
 
 func _init(m, e := 0):
     if typeof(m) == TYPE_STRING:
@@ -131,7 +133,7 @@ func divide(n):
     return self
 
 
-func power(n: int):
+func powerInt(n: int):
     if n < 0:
         printerr("BIG ERROR: NEGATIVE EXPONENTS NOT SUPPORTED!")
         mantissa = 1.0
@@ -162,6 +164,36 @@ func power(n: int):
     mantissa = y_mantissa * mantissa
     calculate(self)
     return self
+
+
+func power(n: float) -> Big:
+    if mantissa == 0:
+        return self
+
+    # fast track
+    var temp:float = exponent * n
+    if round(n) == n and temp < MAX_INTEGER and temp > MIN_INTEGER and temp != INF and temp != -INF:
+        var newMantissa = pow(mantissa, n)
+        if newMantissa != INF and newMantissa != -INF:
+            mantissa = newMantissa
+            exponent = int(temp)
+            calculate(self)
+            return self
+
+    # a bit slower, still supports floats
+    var newExponent:int = int(temp)
+    var residue:float = temp - newExponent
+    var newMantissa = pow(10, n * log10(mantissa) + residue)
+    if newMantissa != INF and newMantissa != -INF:
+        mantissa = newMantissa
+        exponent = newExponent
+        calculate(self)
+        return self
+
+    if round(n) != n:
+        printerr("BIG ERROR: POWER FUNCTION DOES NOT SUPPORT LARGE FLOATS, USE INTEGERS!")
+
+    return powerInt(int(n))
 
 
 func squareRoot():
@@ -287,6 +319,24 @@ func log10(x):
     return log(x) * 0.4342944819032518
 
 
+func absLog10():
+    return exponent + log10(abs(mantissa))
+
+
+func ln():
+    return 2.302585092994045 * logN(10)
+
+
+func logN(base):
+    return (2.302585092994046 / log(base)) * (exponent + log10(mantissa))
+
+
+func pow10(value:int):
+    mantissa = pow(10, value % 1)
+    exponent = int(value)
+    pass
+
+
 static func setThousandName(name):
     other.thousand_name = name
     pass
@@ -317,6 +367,11 @@ static func setDynamicDecimals(d):
     pass
 
 
+static func setDynamicNumbers(d):
+    other.dynamic_numbers = int(d)
+    pass
+
+
 static func setSmallDecimals(d):
     other.small_decimals = int(d)
     pass
@@ -332,6 +387,16 @@ static func setBigDecimals(d):
     pass
 
 
+static func setScientificDecimals(d):
+    other.scientific_decimals = int(d)
+    pass
+
+
+static func setLogarithmicDecimals(d):
+    other.logarithmic_decimals = int(d)
+    pass
+
+
 func toString():
     var mantissa_decimals = 0
     if str(mantissa).find(".") >= 0:
@@ -340,7 +405,7 @@ func toString():
         if exponent < 248:
             return str(mantissa * pow(10, exponent))
         else:
-            return toScientific()
+            return toPlainScientific()
     else:
         var mantissa_string = str(mantissa).replace(".", "")
         for _i in range(exponent-mantissa_decimals):
@@ -348,19 +413,77 @@ func toString():
         return mantissa_string
 
 
-func toScientific():
+func toPlainScientific():
     return str(mantissa) + "e" + str(exponent)
 
 
-func toShortScientific():
-    return str(stepify(mantissa, 0.1)) + "e" + str(exponent)
+func toScientific(no_decimals_on_small_values = false, force_decimals=false):
+    if exponent < 3:
+        var decimal_increments:float = 1 / (pow(10, other.scientific_decimals) / 10)
+        var value = str(stepify(mantissa * pow(10, exponent), decimal_increments))
+        var split = value.split(".")
+        if no_decimals_on_small_values:
+            return split[0]
+        if split.size() > 1:
+            for i in range(other.logarithmic_decimals):
+                if split[1].length() < other.scientific_decimals:
+                    split[1] += "0"
+            return split[0] + other.decimal_separator + split[1].substr(0,min(other.scientific_decimals, other.dynamic_numbers - split[0].length() if other.dynamic_decimals else other.scientific_decimals))
+        else:
+            return value
+    else:
+        var split = str(mantissa).split(".")
+        if split.size() == 1:
+            split.append("")
+        if force_decimals:
+            for i in range(other.scientific_decimals):
+                if split[1].length() < other.scientific_decimals:
+                    split[1] += "0"
+        return split[0] + other.decimal_separator + split[1].substr(0,min(other.scientific_decimals, other.dynamic_numbers-1 - str(exponent).length() if other.dynamic_decimals else other.scientific_decimals)) + "e" + str(exponent)
+
+
+func toLogarithmic(no_decimals_on_small_values = false) -> String:
+    var decimal_increments:float = 1 / (pow(10, other.logarithmic_decimals) / 10)
+    if exponent < 3:
+        var value = str(stepify(mantissa * pow(10, exponent), decimal_increments))
+        var split = value.split(".")
+        if no_decimals_on_small_values:
+            return split[0]
+        if split.size() > 1:
+            for i in range(other.logarithmic_decimals):
+                if split[1].length() < other.logarithmic_decimals:
+                    split[1] += "0"
+            return split[0] + other.decimal_separator + split[1].substr(0,min(other.logarithmic_decimals, other.dynamic_numbers - split[0].length() if other.dynamic_decimals else other.logarithmic_decimals))
+        else:
+            return value
+    var dec = str(stepify(abs(log(mantissa) / log(10) * 10), decimal_increments))
+    dec = dec.replace(".", "")
+    for i in range(other.logarithmic_decimals):
+        if dec.length() < other.logarithmic_decimals:
+            dec += "0"
+    var formated_exponent = formatExponent(exponent)
+    dec = dec.substr(0, min(other.logarithmic_decimals, other.dynamic_numbers - formated_exponent.length() if other.dynamic_decimals else other.logarithmic_decimals))
+    return "e" + formated_exponent + other.decimal_separator + dec
+
+
+func formatExponent(value) -> String:
+    if value < 1000:
+        return str(value)
+    var string = str(value)
+    var mod = string.length() % 3
+    var output = ""
+    for i in range(0, string.length()):
+        if i != 0 and i % 3 == mod:
+            output += other.thousand_separator
+        output += string[i]
+    return output
 
 
 func toFloat():
     return stepify(float(str(mantissa) + "e" + str(exponent)),0.01)
 
 
-func toPrefixOld(no_decimals_on_small_values = false):
+func toPrefixOlder(no_decimals_on_small_values = false):
     var hundreds = 1
     for _i in range(exponent % 3):
         hundreds *= 10
@@ -378,11 +501,13 @@ func toPrefixOld(no_decimals_on_small_values = false):
     return result
 
 
-func toPrefix(no_decimals_on_small_values = false, use_thousand_symbol=true, force_decimals=true):
-    var hundreds = 1
-    for _i in range(exponent % 3):
-        hundreds *= 10
-    var number:float = mantissa * hundreds
+func toPrefixOld(no_decimals_on_small_values = false, use_thousand_symbol=true, force_decimals=true, scientic_prefix=false):
+    var number:float = mantissa
+    if not scientic_prefix:
+        var hundreds = 1
+        for _i in range(exponent % 3):
+            hundreds *= 10
+        number *= hundreds
     var split = str(number).split(".")
     if force_decimals:
         if split.size() == 1:
@@ -393,11 +518,11 @@ func toPrefix(no_decimals_on_small_values = false, use_thousand_symbol=true, for
         pass
     elif exponent < 3:
         if split.size() > 1 and other.small_decimals > 0:
-            result += other.decimal_separator + split[1].substr(0,min(other.small_decimals, 4 - split[0].length() if other.dynamic_decimals else other.small_decimals))
+            result += other.decimal_separator + split[1].substr(0,min(other.small_decimals, other.dynamic_numbers - split[0].length() if other.dynamic_decimals else other.small_decimals))
     elif exponent < 6:
         if use_thousand_symbol:
             if split.size() > 1 and other.thousand_decimals > 0:
-                result += other.decimal_separator + split[1].substr(0,min(other.thousand_decimals, 4 - split[0].length() if other.dynamic_decimals else other.small_decimals))
+                result += other.decimal_separator + split[1].substr(0,min(other.thousand_decimals, other.dynamic_numbers - split[0].length() if other.dynamic_decimals else other.small_decimals))
         else:
             if split.size() > 1:
                 result += other.thousand_separator + (split[1] + "000").substr(0,3)
@@ -405,9 +530,54 @@ func toPrefix(no_decimals_on_small_values = false, use_thousand_symbol=true, for
                 result += other.thousand_separator + "000"
     else:
         if split.size() > 1 and other.big_decimals > 0:
-            result += other.decimal_separator + split[1].substr(0,min(other.big_decimals, 4 - split[0].length() if other.dynamic_decimals else other.small_decimals))
+            result += other.decimal_separator + split[1].substr(0,min(other.big_decimals, other.dynamic_numbers - split[0].length() if other.dynamic_decimals else other.small_decimals))
 
     return result
+
+
+func toPrefix(no_decimals_on_small_values = false, use_thousand_symbol=true, force_decimals=true, scientic_prefix=false) -> String:
+    var number:float = mantissa
+    if not scientic_prefix:
+        var hundreds = 1
+        for _i in range(exponent % 3):
+            hundreds *= 10
+        number *= hundreds
+
+    var split = str(number).split(".")
+    if split.size() == 1:
+        split.append("")
+    if force_decimals:
+        var max_decimals = max(max(other.small_decimals, other.thousand_decimals), other.big_decimals)
+        for i in range(max_decimals):
+            if split[1].length() < max_decimals:
+                split[1] += "0"
+    
+    if no_decimals_on_small_values and exponent < 3:
+        return split[0]
+    elif exponent < 3:
+        if other.small_decimals == 0 or split[1] == "":
+            return split[0]
+        else:
+            return split[0] + other.decimal_separator + split[1].substr(0,min(other.small_decimals, other.dynamic_numbers - split[0].length() if other.dynamic_decimals else other.small_decimals))
+    elif exponent < 6:
+        if other.thousand_decimals == 0 or split[1] == "":
+            return split[0]
+        else:
+            if use_thousand_symbol: # when the prefix is supposed to be using with a K for thousand
+                for i in range(3):
+                    if split[1].length() < 3:
+                        split[1] += "0"
+                return split[0] + other.decimal_separator + split[1].substr(0,min(3, other.dynamic_numbers - split[0].length() if other.dynamic_decimals else 3))
+            else:
+                for i in range(3):
+                    if split[1].length() < 3:
+                        split[1] += "0"
+                return split[0] + other.thousand_separator + split[1].substr(0,3)
+    else:
+        if other.big_decimals == 0 or split[1] == "":
+            return split[0]
+        else:
+            return split[0] + other.decimal_separator + split[1].substr(0,min(other.big_decimals, other.dynamic_numbers - split[0].length() if other.dynamic_decimals else other.big_decimals))
 
 
 # warning-ignore:integer_division
