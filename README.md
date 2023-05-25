@@ -18,6 +18,8 @@ const Big = preload("res://path/to/Big.gd")
 # ...
 ```
 
+Note: No setup should be needed anymore, just drop the file in your project folder.
+
 ## Creating an instance
 
 Multiple constructors can be used to instanciate a `Big` number:
@@ -51,7 +53,8 @@ Instead, you can use the provided functions:
 my_big_number.plus(value)
 my_big_number.minus(value)
 my_big_number.divide(value)
-my_big_number.power(int_value)  # Only accepts an 'int' value
+my_big_number.power(float_value)  # Only accepts a 'float' value
+my_big_number.powerInt(int_value)  # Only accepts an 'int' value
 my_big_number.squareRoot()
 my_big_number.modulo(value)
 my_big_number.roundDown()
@@ -118,11 +121,12 @@ You can tweak the way the strings are formatted by calling the following static 
 
 ```GDScript
 Big.setThousandName("string_value")       # Defaults to "thousand"
-Big.setThousandSeparator("string_value")  # Defaults to "."
-Big.setDecimalSeparator("string_value")   # Defaults to ","
+Big.setThousandSeparator("string_value")  # Defaults to ".", you should set this with your localization settings
+Big.setDecimalSeparator("string_value")   # Defaults to ",", you should set this with your localization settings
 Big.setPostfixSeparator("string_value")   # Defaults to an empty string
 Big.setReadingSeparator("string_value")   # Defaults to an empty string
 
+Big.setDynamicNumbers(int_value)  # Defaults to 4, makes it such that values will only have four digits when dynamic_decimals is true, ie. 1,234 or 12,34
 Big.setDynamicDecimals(bool_value)  # Defaults to true
 
 Big.setSmallDecimals(int_value)     # Defaults to 2
