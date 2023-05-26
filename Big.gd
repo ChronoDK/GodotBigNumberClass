@@ -560,7 +560,7 @@ func toPrefix(no_decimals_on_small_values = false, use_thousand_symbol=true, for
         else:
             return split[0] + other.decimal_separator + split[1].substr(0,min(other.small_decimals, other.dynamic_numbers - split[0].length() if other.dynamic_decimals else other.small_decimals))
     elif exponent < 6:
-        if other.thousand_decimals == 0 or split[1] == "":
+        if other.thousand_decimals == 0 or (split[1] == "" and use_thousand_symbol):
             return split[0]
         else:
             if use_thousand_symbol: # when the prefix is supposed to be using with a K for thousand
@@ -668,19 +668,20 @@ func toMetricName(no_decimals_on_small_values = false):
     else:
         return toPrefix(no_decimals_on_small_values) + other.postfix_separator + postfixes_metric_name[str(target)]
 
-func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force_decimals=false):
-    var target = int(exponent / 3)
-    var aa_index = str(target)
-    var postfix = ""
+
+func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force_decimals=false) -> String:
+    var target:int = int(exponent / 3)
+    var aa_index:String = str(target)
+    var postfix:String = ""
 
     if not postfixes_aa.has(aa_index):
-        target += 22
+        var offset:int = target + 22
         var base:int = alphabet_aa.size()
-        while target > 0:
-            target -= 1
-            var digit:int = target % base
+        while offset > 0:
+            offset -= 1
+            var digit:int = offset % base
             postfix = alphabet_aa[digit] + postfix
-            target /= base
+            offset /= base
         postfixes_aa[aa_index] = postfix
     else:
         postfix = postfixes_aa[aa_index]
@@ -689,4 +690,5 @@ func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force
         postfix = ""
 
     var prefix = toPrefix(no_decimals_on_small_values, use_thousand_symbol, force_decimals)
+
     return prefix + other.postfix_separator + postfix
