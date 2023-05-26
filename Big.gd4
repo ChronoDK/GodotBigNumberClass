@@ -604,11 +604,12 @@ func toMetricName(no_decimals_on_small_values = false) -> String:
 		return toPrefix(no_decimals_on_small_values) + other.postfix_separator + postfixes_metric_name[str(target)]
 
 
-func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force_decimals=false) -> String:
+func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force_decimals=false):
 	var target = int(exponent / 3)
+	var aa_index = str(target)
 	var postfix = ""
-	
-	if not postfixes_aa.has(str(target)):
+
+	if not postfixes_aa.has(aa_index):
 		target += 22
 		var base:int = alphabet_aa.size()
 		while target > 0:
@@ -616,13 +617,12 @@ func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force
 			var digit:int = target % base
 			postfix = alphabet_aa[digit] + postfix
 			target /= base
-		postfixes_aa[str(target)] = postfix
+		postfixes_aa[aa_index] = postfix
 	else:
-		postfix = postfixes_aa[str(target)]
+		postfix = postfixes_aa[aa_index]
 
 	if not use_thousand_symbol and target == 1:
 		postfix = ""
 
 	var prefix = toPrefix(no_decimals_on_small_values, use_thousand_symbol, force_decimals)
-
 	return prefix + other.postfix_separator + postfix
