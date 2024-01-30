@@ -14,9 +14,9 @@ extends RefCounted
 var mantissa: float = 0.0
 var exponent: int = 1
 
-const postfixes_metric_symbol = {"0":"", "1":"k", "2":"M", "3":"G", "4":"T", "5":"P", "6":"E", "7":"Z", "8":"Y", "9":"R", "10":"Q"}
-const postfixes_metric_name = {"0":"", "1":"kilo", "2":"mega", "3":"giga", "4":"tera", "5":"peta", "6":"exa", "7":"zetta", "8":"yotta", "9":"ronna", "10":"quetta"}
-static var postfixes_aa = {"0":"", "1":"k", "2":"m", "3":"b", "4":"t", "5":"aa", "6":"ab", "7":"ac", "8":"ad", "9":"ae", "10":"af", "11":"ag", "12":"ah", "13":"ai", "14":"aj", "15":"ak", "16":"al", "17":"am", "18":"an", "19":"ao", "20":"ap", "21":"aq", "22":"ar", "23":"as", "24":"at", "25":"au", "26":"av", "27":"aw", "28":"ax", "29":"ay", "30":"az", "31":"ba", "32":"bb", "33":"bc", "34":"bd", "35":"be", "36":"bf", "37":"bg", "38":"bh", "39":"bi", "40":"bj", "41":"bk", "42":"bl", "43":"bm", "44":"bn", "45":"bo", "46":"bp", "47":"bq", "48":"br", "49":"bs", "50":"bt", "51":"bu", "52":"bv", "53":"bw", "54":"bx", "55":"by", "56":"bz", "57":"ca"}
+const suffixes_metric_symbol = {"0":"", "1":"k", "2":"M", "3":"G", "4":"T", "5":"P", "6":"E", "7":"Z", "8":"Y", "9":"R", "10":"Q"}
+const suffixes_metric_name = {"0":"", "1":"kilo", "2":"mega", "3":"giga", "4":"tera", "5":"peta", "6":"exa", "7":"zetta", "8":"yotta", "9":"ronna", "10":"quetta"}
+static var suffixes_aa = {"0":"", "1":"k", "2":"m", "3":"b", "4":"t", "5":"aa", "6":"ab", "7":"ac", "8":"ad", "9":"ae", "10":"af", "11":"ag", "12":"ah", "13":"ai", "14":"aj", "15":"ak", "16":"al", "17":"am", "18":"an", "19":"ao", "20":"ap", "21":"aq", "22":"ar", "23":"as", "24":"at", "25":"au", "26":"av", "27":"aw", "28":"ax", "29":"ay", "30":"az", "31":"ba", "32":"bb", "33":"bc", "34":"bd", "35":"be", "36":"bf", "37":"bg", "38":"bh", "39":"bi", "40":"bj", "41":"bk", "42":"bl", "43":"bm", "44":"bn", "45":"bo", "46":"bp", "47":"bq", "48":"br", "49":"bs", "50":"bt", "51":"bu", "52":"bv", "53":"bw", "54":"bx", "55":"by", "56":"bz", "57":"ca"}
 const alphabet_aa: Array[String] = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
 
 const latin_ones: Array[String] = ["", "un", "duo", "tre", "quattuor", "quin", "sex", "septen", "octo", "novem"]
@@ -24,10 +24,10 @@ const latin_tens: Array[String] = ["", "dec", "vigin", "trigin", "quadragin", "q
 const latin_hundreds: Array[String] = ["", "cen", "duocen", "trecen", "quadringen", "quingen", "sescen", "septingen", "octingen", "nongen"]
 const latin_special: Array[String] = ["", "mi", "bi", "tri", "quadri", "quin", "sex", "sept", "oct", "non"]
 
-static var other = {"dynamic_decimals":true, "dynamic_numbers":4, "small_decimals":2, "thousand_decimals":2, "big_decimals":2, "scientific_decimals": 2, "logarithmic_decimals":2, "thousand_separator":".", "decimal_separator":",", "postfix_separator":"", "reading_separator":"", "thousand_name":"thousand"}
+static var other = {"dynamic_decimals":true, "dynamic_numbers":4, "small_decimals":2, "thousand_decimals":2, "big_decimals":2, "scientific_decimals": 2, "logarithmic_decimals":2, "thousand_separator":".", "decimal_separator":",", "suffix_separator":"", "reading_separator":"", "thousand_name":"thousand"}
 
 const MAX_MANTISSA = 1209600.0
-const MANTISSA_PRECISSION = 0.0000001
+const MANTISSA_PRECISION = 0.0000001
 
 const MIN_INTEGER: int = -9223372036854775807
 const MAX_INTEGER: int = 9223372036854775806
@@ -88,7 +88,7 @@ func minus(n) -> Big:
 		var scaled_mantissa = n.mantissa * pow(10, exp_diff)
 		mantissa -= scaled_mantissa
 	elif isLessThan(n):
-		mantissa = -MANTISSA_PRECISSION
+		mantissa = -MANTISSA_PRECISION
 		exponent = n.exponent
 	calculate(self)
 	return self
@@ -112,7 +112,7 @@ func divide(n) -> Big:
 	n = _typeCheck(n)
 	_sizeCheck(n.mantissa)
 	if n.mantissa == 0:
-		printerr("BIG ERROR: DIVIDE BY ZERO OR LESS THAN " + str(MANTISSA_PRECISSION))
+		printerr("BIG ERROR: DIVIDE BY ZERO OR LESS THAN " + str(MANTISSA_PRECISION))
 		return self
 	var new_exponent = exponent - n.exponent
 	var new_mantissa = mantissa / n.mantissa
@@ -216,7 +216,7 @@ func calculate(big):
 		var diff = int(floor(log10(big.mantissa)))
 		if diff > -10 and diff < 248:
 			var div = pow(10, diff)
-			if div > MANTISSA_PRECISSION:
+			if div > MANTISSA_PRECISION:
 				big.mantissa /= div
 				big.exponent += diff
 	while big.exponent < 0:
@@ -228,7 +228,7 @@ func calculate(big):
 	if big.mantissa == 0:
 		big.mantissa = 0.0
 		big.exponent = 0
-	big.mantissa = snapped(big.mantissa, MANTISSA_PRECISSION)
+	big.mantissa = snapped(big.mantissa, MANTISSA_PRECISION)
 	pass
 
 
@@ -238,18 +238,18 @@ func isEqualTo(n) -> bool:
 	return n.exponent == exponent and is_equal_approx(n.mantissa, mantissa)
 
 
-func isLargerThan(n) -> bool:
+func isGreaterThan(n) -> bool:
 	return !isLessThanOrEqualTo(n)
 
 
-func isLargerThanOrEqualTo(n) -> bool:
+func isGreaterThanOrEqualTo(n) -> bool:
 	return !isLessThan(n)
 
 
 func isLessThan(n) -> bool:
 	n = _typeCheck(n)
 	calculate(n)
-	if mantissa == 0 and (n.mantissa > MANTISSA_PRECISSION or mantissa < MANTISSA_PRECISSION) and n.mantissa == 0:
+	if mantissa == 0 and (n.mantissa > MANTISSA_PRECISION or mantissa < MANTISSA_PRECISION) and n.mantissa == 0:
 		return false
 	if exponent < n.exponent:
 		return true
@@ -282,7 +282,7 @@ static func minValue(m, n) -> Big:
 
 static func maxValue(m, n) -> Big:
 	m = _typeCheck(m)
-	if m.isLargerThan(n):
+	if m.isGreaterThan(n):
 		return m
 	else:
 		return n
@@ -301,8 +301,8 @@ func roundDown() -> Big:
 		var precision = 1.0
 		for i in range(min(8, exponent)):
 			precision /= 10.0
-		if precision < MANTISSA_PRECISSION:
-			precision = MANTISSA_PRECISSION
+		if precision < MANTISSA_PRECISION:
+			precision = MANTISSA_PRECISION
 		mantissa = snapped(mantissa, precision)
 		return self
 
@@ -343,8 +343,8 @@ static func setDecimalSeparator(separator):
 	pass
 
 
-static func setPostfixSeparator(separator):
-	other.postfix_separator = separator
+static func setSuffixSeparator(separator):
+	other.suffix_separator = separator
 	pass
 
 
@@ -580,53 +580,53 @@ func toEuropeanName(no_decimals_on_small_values = false) -> String:
 func toLongName(no_decimals_on_small_values = false, european_system = false) -> String:
 	if exponent < 6:
 		if exponent > 2:
-			return toPrefix(no_decimals_on_small_values) + other.postfix_separator + other.thousand_name
+			return toPrefix(no_decimals_on_small_values) + other.suffix_separator + other.thousand_name
 		else:
 			return toPrefix(no_decimals_on_small_values)
 
-	var postfix = _latinPrefix(european_system) + other.reading_separator + _tillionOrIllion(european_system) + _llionOrLliard(european_system)
+	var suffix = _latinPrefix(european_system) + other.reading_separator + _tillionOrIllion(european_system) + _llionOrLliard(european_system)
 
-	return toPrefix(no_decimals_on_small_values) + other.postfix_separator + postfix
+	return toPrefix(no_decimals_on_small_values) + other.suffix_separator + suffix
 
 
 func toMetricSymbol(no_decimals_on_small_values = false) -> String:
 	var target = int(exponent / 3)
 
-	if not postfixes_metric_symbol.has(str(target)):
+	if not suffixes_metric_symbol.has(str(target)):
 		return toScientific()
 	else:
-		return toPrefix(no_decimals_on_small_values) + other.postfix_separator + postfixes_metric_symbol[str(target)]
+		return toPrefix(no_decimals_on_small_values) + other.suffix_separator + suffixes_metric_symbol[str(target)]
 
 
 func toMetricName(no_decimals_on_small_values = false) -> String:
 	var target = int(exponent / 3)
 
-	if not postfixes_metric_name.has(str(target)):
+	if not suffixes_metric_name.has(str(target)):
 		return toScientific()
 	else:
-		return toPrefix(no_decimals_on_small_values) + other.postfix_separator + postfixes_metric_name[str(target)]
+		return toPrefix(no_decimals_on_small_values) + other.suffix_separator + suffixes_metric_name[str(target)]
 
 
 func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force_decimals=false) -> String:
 	var target:int = int(exponent / 3)
 	var aa_index:String = str(target)
-	var postfix:String = ""
+	var suffix:String = ""
 
-	if not postfixes_aa.has(aa_index):
+	if not suffixes_aa.has(aa_index):
 		var offset:int = target + 22
 		var base:int = alphabet_aa.size()
 		while offset > 0:
 			offset -= 1
 			var digit:int = offset % base
-			postfix = alphabet_aa[digit] + postfix
+			suffix = alphabet_aa[digit] + suffix
 			offset /= base
-		postfixes_aa[aa_index] = postfix
+		suffixes_aa[aa_index] = suffix
 	else:
-		postfix = postfixes_aa[aa_index]
+		suffix = suffixes_aa[aa_index]
 
 	if not use_thousand_symbol and target == 1:
-		postfix = ""
+		suffix = ""
 
 	var prefix = toPrefix(no_decimals_on_small_values, use_thousand_symbol, force_decimals)
 
-	return prefix + other.postfix_separator + postfix
+	return prefix + other.suffix_separator + suffix

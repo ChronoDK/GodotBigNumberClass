@@ -77,8 +77,8 @@ Instead, you can use the provided functions:
 ```GDScript
 # 'value' can be numeric or another Big number
 
-my_big_number.isLargerThan(value)
-my_big_number.isLargerThanOrEqualTo(value)
+my_big_number.isGreaterThan(value)
+my_big_number.isGreaterThanOrEqualTo(value)
 my_big_number.isEqualTo(value)
 my_big_number.isLessThanOrEqualTo(value)
 my_big_number.isLessThan(value)
@@ -123,7 +123,7 @@ You can tweak the way the strings are formatted by calling the following static 
 Big.setThousandName("string_value")       # Defaults to "thousand"
 Big.setThousandSeparator("string_value")  # Defaults to ".", you should set this with your localization settings
 Big.setDecimalSeparator("string_value")   # Defaults to ",", you should set this with your localization settings
-Big.setPostfixSeparator("string_value")   # Defaults to an empty string
+Big.setSuffixSeparator("string_value")   # Defaults to an empty string
 Big.setReadingSeparator("string_value")   # Defaults to an empty string
 
 Big.setDynamicNumbers(int_value)  # Defaults to 4, makes it such that values will only have four digits when dynamic_decimals is true, ie. 1,234 or 12,34
@@ -140,7 +140,7 @@ For example:
 var big = Big.new(12345, 12)
 print(big.toAA())  # With default settings: 12,34aa
 
-Big.setPostfixSeparator(" ")
+Big.setSuffixSeparator(" ")
 Big.setDecimalSeparator(".")
 Big.setDynamicDecimals(false)
 Big.setSmallDecimals(1)
