@@ -12,9 +12,9 @@ extends RefCounted
 ## Please note that this class has limited precision and does not fully support negative exponents[br]
 
 ## Big Number Mantissa
-var mantissa: float;
+var mantissa: float
 ## Big Number Exponent
-var exponent: int;
+var exponent: int
 
 ## Metric Symbol Suffixes
 const suffixes_metric_symbol: Dictionary = {
@@ -232,11 +232,11 @@ static func add(x, y) -> Big:
 	y = Big._typeCheck(y)
 	var result := Big.new(x)
 	
-	var exp_diff: float = y.exponent - x.exponent;
+	var exp_diff: float = y.exponent - x.exponent
 	
 	if exp_diff < 248.0:
 		var scaled_mantissa: float = y.mantissa * 10 ** exp_diff
-		result.mantissa = x.mantissa + scaled_mantissa;
+		result.mantissa = x.mantissa + scaled_mantissa
 	elif x.isLessThan(y): # When difference between values is too big, discard the smaller number
 		result.mantissa = y.mantissa 
 		result.exponent = y.exponent
@@ -424,8 +424,8 @@ func plus(n) -> Big:
 ## Equivalent of [code]Big += n[/code]
 func plusEquals(n) -> Big:
 	var new_value = Big.add(self, n)
-	mantissa = new_value.mantissa;
-	exponent = new_value.exponent;
+	mantissa = new_value.mantissa
+	exponent = new_value.exponent
 	return self
 
 ## Equivalent of [code]Big - n[/code]
