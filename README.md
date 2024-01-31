@@ -2,11 +2,13 @@
 
 Use very BIG numbers in Godot Engine games.
 
-It supports very big numbers, with hundreds of digits so very useful in an idle game. It can also format the number to a short string in AA-notation like 2.00M for two million, or for bigger numbers something like 4.56AA, 7.89ZZ or even bigger.
+It supports very big numbers with hundreds of digits, useful in an idle game. It can also format the number to a short string in AA-notation like 2.00M for two million, or for bigger numbers something like 4.56AA, 7.89ZZ or even bigger.
 
 ## Setup
 
-The easiest way to use this class is to preload it in a file that is set as [AutoLoad](https://docs.godotengine.org/en/stable/getting_started/step_by_step/singletons_autoload.html) in your project, as Big.gd cannot be used as AutoLoad itself as of Godot 3.3.4.
+For `4.1.x` and later, just drop the file in your project folder.
+
+For `3.x`, the easiest way to use this class is to preload it in a script that is set as [AutoLoad](https://docs.godotengine.org/en/stable/getting_started/step_by_step/singletons_autoload.html) in your project, as Big.gd cannot be used as AutoLoad itself as of Godot 3.3.4.
 
 e.g. In a file named Global.gd, autoloaded in your project:
 
@@ -18,59 +20,80 @@ const Big = preload("res://path/to/Big.gd")
 # ...
 ```
 
-Note: No setup should be needed anymore, just drop the file in your project folder.
-
 ## Creating an instance
 
-Multiple constructors can be used to instanciate a `Big` number:
+Multiple constructors can be used to instantiate a `Big` number:
 
 ```GDScript
 var big_int = Big.new(100)  # From an integer
 var big_exp = Big.new(2, 6) # Using a mantissa and exponent;
-                            # here means 2000000
+                            # here means 2,000,000
 var big_cpy = Big.new(big_exp)  # As a copy of another big number;
-                                # see why below
+                                # See why below
 ```
 
-All operations executed on a `Big` number modify that instance. As such, you will probably often find yourself creating temporary copies of other `Big` numbers to run those operations while leaving the original value untouched.
+Some operations executed on a `Big` number modify that instance. As such, you will probably find yourself creating temporary copies of other `Big` numbers to run those operations while leaving the original value untouched.
 
 ```GDScript
 var unit_cost: Big = Big.new(2, 6)
 
-func cost(count:Big) -> Big:
+func cost(count: Big) -> Big:
     var _total = Big.new(count)
-    return _total.multiply(unit_cost)
+    return _total.timesEquals(unit_cost)
 ```
 
 ## Mathematical operations
 
 The normal operands used for integer and floating-point operations (e.g. `+`, `-`, `*`, `/`, `%`) cannot be used on a `Big` number.
 
-Instead, you can use the provided functions:
+Instead, you can use the provided functions for a `Big` number:
 
 ```GDScript
 # 'value' can be numeric or another Big number
-my_big_number.plus(value)
-my_big_number.minus(value)
-my_big_number.divide(value)
-my_big_number.power(float_value)  # Only accepts a 'float' value
-my_big_number.powerInt(int_value)  # Only accepts an 'int' value
-my_big_number.squareRoot()
-my_big_number.modulo(value)
-my_big_number.roundDown()
-my_big_number.log10(int_value)
+my_big_number.plus(value)       # my_big_number + value
+my_big_number.minus(value)      # my_big_number - value
+my_big_number.times(value)      # my_big_number * value
+my_big_number.dividedBy(value)  # my_big_number / value
+my_big_number.mod(value)        # my_big_number % value
+my_big_number.toThePowerOf(value) # Only accepts float or int; my_big_number ** value
 ```
 
-All functions modify the current object, and also return it to chain operations if needed.
+Or for calculating `Big` numbers together:
+
+```GDScript
+Big.add(big_a, big_b)       # big_a + big_b
+Big.subtract(big_a, big_b)  # big_a - big_b
+Big.multiply(big_a, big_b)  # big_a * big_b
+Big.divide(big_a, big_b)    # big_a / big_b
+Big.modulo(big_a, big_b)    # big_a % big_b
+```
+
+Operations can be chained:
 
 ```GDScript
 var my_big_number = Big.new(100)
-print(my_big_number.plus(10).divide(10).toString())  # Will print "11"
+print(my_big_number.plus(10).dividedBy(10).toString())  # Will print "11"
+```
+
+## Modifying
+
+Some functions can modify the current object as well. It's as simple as writing "Equals" after the operation names
+
+```GDScript
+# 'value' can be numeric or another Big number
+my_big_number.plusEquals(value)         # my_big_number += value
+my_big_number.minusEquals(value)        # my_big_number -= value
+my_big_number.timesEquals(value)        # my_big_number *= value
+my_big_number.dividedByEquals(value)    # my_big_number /= value
+my_big_number.modEquals(value)          # my_big_number %= value
+my_big_number.toThePowerOfEquals(value) # Only accepts float or int; my_big_number **= value
+
+Big.round_down(my_big_number)           # Rounds down the mantissa
 ```
 
 ## Comparisons
 
-Again, the normal operands cannot be used here (e.g. `>`, `>=`, `==`, `<`, `<=`).
+The normal operands still cannot be used here (e.g. `>`, `>=`, `==`, `<`, `<=`).
 
 Instead, you can use the provided functions:
 
@@ -92,9 +115,9 @@ The following static functions are available:
 # 'big_value' must be a Big number;
 # 'value' can be numeric or another Big number
 
-var smallest = Big.min(big_value, value)
-var largest = Big.max(big_value, value)
-var positive = Big.abs(big_value)
+var smallest = Big.minValue(big_value, value)
+var largest = Big.maxValue(big_value, value)
+var positive = Big.absolute(big_value)
 ```
 
 ## Formatting as a string
@@ -103,13 +126,13 @@ An important aspect with big numbers is being able to display them in a way that
 
 ```GDScript
 var big = Big.new(12345, 12)
-print(big.toAA())               # 12,34aa
-print(big.toAmericanName())     # 12,34quadrillion
-print(big.toEuropeanName())     # 12,34billiard
-print(big.toLongName())         # 12,34quadrillion
-print(big.toMetricName())       # 12,34peta
-print(big.toMetricSymbol())     # 12,34P
-print(big.toPrefix())           # 12,34
+print(big.toAA())               # 12.34aa
+print(big.toAmericanName())     # 12.34quadrillion
+print(big.toEuropeanName())     # 12.34billiard
+print(big.toLongName())         # 12.34quadrillion
+print(big.toMetricName())       # 12.34peta
+print(big.toMetricSymbol())     # 12.34P
+print(big.toPrefix())           # 12.34
 print(big.toScientific())       # 1.2345e16
 print(big.toShortScientific())  # 1.2e16
 print(big.toString())           # 12345000000000000
