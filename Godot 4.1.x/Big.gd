@@ -394,7 +394,7 @@ static func roundDown(x: Big) -> Big:
 			precision /= 10.0
 		if precision < MANTISSA_PRECISION:
 			precision = MANTISSA_PRECISION
-		x.mantissa = snapped(x.mantissa, precision)
+		x.mantissa = floor(x.mantissa / precision) * precision
 	return x
 
 
