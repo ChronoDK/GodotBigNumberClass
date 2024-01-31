@@ -190,7 +190,6 @@ static func _sizeCheck(m: float) -> void:
 
 ## [url=https://en.wikipedia.org/wiki/Normalized_number]Normalize[/url] a Big number
 static func normalize(big: Big) -> void:
-	print("Normalize --- old_mantissa: ", big.mantissa, " old_exponent: ", big.exponent)
 	# Store sign if negative
 	var is_negative := false
 	if big.mantissa < 0:
@@ -218,8 +217,6 @@ static func normalize(big: Big) -> void:
 	# Return sign if negative
 	if (is_negative):
 		big.mantissa *= -1
-	print("Normalize --- new_mantissa: ", big.mantissa, " new_exponent: ", big.exponent)
-	print()
 
 
 ## Returns the absolute value of a number in Big format
@@ -235,10 +232,6 @@ static func add(x, y) -> Big:
 	y = Big._typeCheck(y)
 	var result := Big.new(x)
 	
-	print("add_debug: ")
-	print("xM: ", x.mantissa, " xE: ", x.exponent)
-	print("yM: ", y.mantissa, " yE: ", y.exponent)
-	
 	var exp_diff: float = y.exponent - x.exponent;
 	
 	if exp_diff < 248.0:
@@ -247,8 +240,6 @@ static func add(x, y) -> Big:
 	elif x.isLessThan(y): # When difference between values is too big, discard the smaller number
 		result.mantissa = y.mantissa 
 		result.exponent = y.exponent
-	print("add_debug [postcalcs, prenorm]: ")
-	print("rM: ", result.mantissa, " rE: ", result.exponent)
 	Big.normalize(result)
 	return result
 
@@ -333,7 +324,6 @@ static func power(x: Big, y) -> Big:
 		
 		# fast track
 		var temp: float = result.exponent * y
-		print("DIVISION SPECIAL, TEMP: ", str(temp), " oE: ", result.exponent, " y: ", y)
 		var newMantissa = result.mantissa ** y
 		if (round(y) == y
 				and temp <= INT_MAX
