@@ -11,6 +11,7 @@ extends RefCounted
 ## Long strings like 4200000000 or 13370000000000000000000000000000[br][br]
 ## Please note that this class has limited precision and does not fully support negative exponents[br]
 
+#region Variables and Constants
 ## Big Number Mantissa
 var mantissa: float
 ## Big Number Exponent
@@ -158,7 +159,10 @@ const MANTISSA_PRECISION: float = 0.0000001
 const INT_MIN: int = -9223372036854775808
 ## int (signed 64-bit) maximum value
 const INT_MAX: int = 9223372036854775807
+#endregion
 
+
+#region Standard Functions
 func _init(m: Variant = 1.0, e: int = 0) -> void:
 	if m is Big:
 		mantissa = m.mantissa
@@ -186,8 +190,10 @@ static func _typeCheck(n) -> Big:
 static func _sizeCheck(m: float) -> void:
 	if m > MANTISSA_MAX:
 		printerr("Big Error: Mantissa \"" + str(m) + "\" exceeds MANTISSA_MAX. Use exponent or scientific notation")
+#endregion
 
 
+#region Static Calculation Functions
 ## [url=https://en.wikipedia.org/wiki/Normalized_number]Normalize[/url] a Big number
 static func normalize(big: Big) -> void:
 	# Store sign if negative
@@ -416,6 +422,10 @@ static func maxValue(m, n) -> Big:
 		return n
 
 
+#endregion
+
+
+#region Non-Static Calculation Functions
 ## Equivalent of [code]Big + n[/code]
 func plus(n) -> Big:
 	return Big.add(self, n)
@@ -568,8 +578,10 @@ func logN(base) -> float:
 func pow10(value: int) -> void:
 	mantissa = 10 ** (value % 1)
 	exponent = int(value)
+#endregion
 
 
+#region String Functions
 ## Sets the Thousand name option
 static func setThousandName(name: String) -> void:
 	options.thousand_name = name
@@ -897,3 +909,4 @@ func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force
 	var prefix = toPrefix(no_decimals_on_small_values, use_thousand_symbol, force_decimals)
 
 	return prefix + options.suffix_separator + suffix
+#endregion
