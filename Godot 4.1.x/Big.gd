@@ -422,6 +422,31 @@ static func maxValue(m, n) -> Big:
 		return n
 
 
+## Equivalent of [code]randf_range(x, y)[/code]
+static func randomFloatRange(min, max) -> Big:
+	min = Big._typeCheck(min)
+	max = Big._typeCheck(max)
+	var result := Big.new()
+	result.exponent = randi_range(min.exponent, max.exponent)
+	var mantissa := randf_range(0.0, 10.0)
+	# No exclusive randf exists, this loop rerolls the number should limits be reached
+	while mantissa == 0.0 or mantissa == 10.0:
+		if result.exponent == min.exponent:
+			mantissa = randf_range(min.mantissa, 10.0)
+		elif result.exponent == max.exponent:
+			mantissa = randf_range(0.0, max.mantissa)
+		else:
+			mantissa = randf_range(0.0, 10.0)
+	result.mantissa = mantissa
+	Big.normalize(result)
+	return result
+
+
+## Equivalent of [code]randi_range(x, y)[/code]
+static func randomIntRange(min, max) -> Big:
+	var result := Big.randomFloatRange(min, max)
+	result.mantissa = roundi(result.mantissa)
+	return result
 #endregion
 
 
