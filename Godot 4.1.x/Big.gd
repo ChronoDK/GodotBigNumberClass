@@ -182,7 +182,7 @@ func _init(m: Variant = 1.0, e: int = 0) -> void:
 ## Verifies (or converts) an argument into a Big number
 static func _typeCheck(n) -> Big:
 	if n is Big:
-		return n
+		return n as Big
 	var result := Big.new(n)
 	return result
 
