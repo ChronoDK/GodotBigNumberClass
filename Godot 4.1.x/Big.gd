@@ -427,17 +427,24 @@ static func randomFloatRange(min, max) -> Big:
 	min = Big._typeCheck(min)
 	max = Big._typeCheck(max)
 	var result := Big.new()
-	result.exponent = randi_range(min.exponent, max.exponent)
-	var mantissa := randf_range(0.0, 10.0)
-	# No exclusive randf exists, this loop rerolls the number should limits be reached
-	while mantissa == 0.0 or mantissa == 10.0:
+	if min.isGreaterThanOrEqualTo(max):
+		printerr("Big Error: Min value is larger than random float range Max!")
+		return max
+	
+	# 0 - 9,999,999 range? Do a standard randf_range
+	if max.exponent - min.exponent < 6:
+		result.exponent = min.exponent
+		result.mantissa = randf_range(min.mantissa, 10 ** (max.exponent - min.exponent) * max.mantissa)
+	else:
+		result.exponent = randi_range(min.exponent, max.exponent)
 		if result.exponent == min.exponent:
-			mantissa = randf_range(min.mantissa, 10.0)
+			result.mantissa = randf_range(min.mantissa, 10.0)
 		elif result.exponent == max.exponent:
-			mantissa = randf_range(0.0, max.mantissa)
+			result.mantissa = randf_range(0.0, max.mantissa)
 		else:
-			mantissa = randf_range(0.0, 10.0)
-	result.mantissa = mantissa
+			result.mantissa = randf_range(0.0, 10.0)
+			while is_zero_approx(result.mantissa):
+				result.mantissa = randf_range(0.0, 10.0)
 	Big.normalize(result)
 	return result
 
@@ -446,6 +453,7 @@ static func randomFloatRange(min, max) -> Big:
 static func randomIntRange(min, max) -> Big:
 	var result := Big.randomFloatRange(min, max)
 	result.mantissa = roundi(result.mantissa)
+	Big.normalize(result)
 	return result
 #endregion
 
