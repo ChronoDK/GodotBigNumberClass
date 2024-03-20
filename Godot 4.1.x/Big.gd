@@ -754,12 +754,12 @@ func toPrefix(no_decimals_on_small_values = false, use_thousand_symbol=true, for
 				for i in range(3):
 					if split[1].length() < 3:
 						split[1] += "0"
-				return split[0] + options.decimal_separator + split[1].substr(0,min(3, options.dynamic_numbers - split[0].length() if options.dynamic_decimals else 3))
+				return split[0] + options.decimal_separator + split[1].substr(0,min(3, options.dynamic_numbers - split[0].length() if options.dynamic_decimals else options.thousand_decimals))
 			else:
 				for i in range(3):
 					if split[1].length() < 3:
 						split[1] += "0"
-				return split[0] + options.thousand_separator + split[1].substr(0,3)
+				return split[0] + options.thousand_separator + split[1].substr(0,min(3, options.thousand_decimals))
 	else:
 		if options.big_decimals == 0 or split[1] == "":
 			return split[0]
