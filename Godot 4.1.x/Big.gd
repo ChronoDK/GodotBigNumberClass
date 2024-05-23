@@ -199,7 +199,7 @@ static func normalize(big: Big) -> void:
 	if big.mantissa < 1.0 or big.mantissa >= 10.0:
 		var diff: int = floor(log10(big.mantissa))
 		if diff > -10 and diff < 248:
-			var div = 10 ** diff
+			var div = 10.0 ** diff
 			if div > MANTISSA_PRECISION:
 				big.mantissa /= div
 				big.exponent += diff
