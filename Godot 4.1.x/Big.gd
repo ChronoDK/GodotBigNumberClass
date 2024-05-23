@@ -528,8 +528,8 @@ func isLessThan(n) -> bool:
 	):
 		return false
 	if exponent < n.exponent:
-		if exponent == n.exponent - 1 and mantissa > 10*n.mantissa:
-			return false
+		if exponent == n.exponent - 1 and mantissa > 10*n.mantissa:	
+			return false #9*10^3 > 0.1*10^4
 		return true
 	elif exponent == n.exponent:
 		if mantissa < n.mantissa:
