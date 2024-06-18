@@ -11,6 +11,7 @@ extends RefCounted
 ## Long strings like 4200000000 or 13370000000000000000000000000000[br][br]
 ## Please note that this class has limited precision and does not fully support negative exponents[br]
 
+#region Variables and Constants
 ## Big Number Mantissa
 var mantissa: float
 ## Big Number Exponent
@@ -158,7 +159,10 @@ const MANTISSA_PRECISION: float = 0.0000001
 const INT_MIN: int = -9223372036854775808
 ## int (signed 64-bit) maximum value
 const INT_MAX: int = 9223372036854775807
+#endregion
 
+
+#region Standard Functions
 func _init(m: Variant = 1.0, e: int = 0) -> void:
 	if m is Big:
 		mantissa = m.mantissa
@@ -178,7 +182,7 @@ func _init(m: Variant = 1.0, e: int = 0) -> void:
 ## Verifies (or converts) an argument into a Big number
 static func _typeCheck(n) -> Big:
 	if n is Big:
-		return n
+		return n as Big
 	var result := Big.new(n)
 	return result
 
@@ -186,8 +190,10 @@ static func _typeCheck(n) -> Big:
 static func _sizeCheck(m: float) -> void:
 	if m > MANTISSA_MAX:
 		printerr("Big Error: Mantissa \"" + str(m) + "\" exceeds MANTISSA_MAX. Use exponent or scientific notation")
+#endregion
 
 
+#region Static Calculation Functions
 ## [url=https://en.wikipedia.org/wiki/Normalized_number]Normalize[/url] a Big number
 static func normalize(big: Big) -> void:
 	# Store sign if negative
@@ -416,6 +422,43 @@ static func maxValue(m, n) -> Big:
 		return n
 
 
+## Equivalent of [code]randf_range(x, y)[/code]
+static func randomFloatRange(min, max) -> Big:
+	min = Big._typeCheck(min)
+	max = Big._typeCheck(max)
+	var result := Big.new()
+	if min.isGreaterThanOrEqualTo(max):
+		printerr("Big Error: Min value is larger than random float range Max!")
+		return max
+	
+	# 0 - 9,999,999 range? Do a standard randf_range
+	if max.exponent - min.exponent < 6:
+		result.exponent = min.exponent
+		result.mantissa = randf_range(min.mantissa, 10 ** (max.exponent - min.exponent) * max.mantissa)
+	else:
+		result.exponent = randi_range(min.exponent, max.exponent)
+		if result.exponent == min.exponent:
+			result.mantissa = randf_range(min.mantissa, 10.0)
+		elif result.exponent == max.exponent:
+			result.mantissa = randf_range(0.0, max.mantissa)
+		else:
+			result.mantissa = randf_range(0.0, 10.0)
+			while is_zero_approx(result.mantissa):
+				result.mantissa = randf_range(0.0, 10.0)
+	Big.normalize(result)
+	return result
+
+
+## Equivalent of [code]randi_range(x, y)[/code]
+static func randomIntRange(min, max) -> Big:
+	var result := Big.randomFloatRange(min, max)
+	result.mantissa = roundi(result.mantissa)
+	Big.normalize(result)
+	return result
+#endregion
+
+
+#region Non-Static Calculation Functions
 ## Equivalent of [code]Big + n[/code]
 func plus(n) -> Big:
 	return Big.add(self, n)
@@ -571,8 +614,10 @@ func logN(base) -> float:
 func pow10(value: int) -> void:
 	mantissa = 10 ** (value % 1)
 	exponent = int(value)
+#endregion
 
 
+#region String Functions
 ## Sets the Thousand name option
 static func setThousandName(name: String) -> void:
 	options.thousand_name = name
@@ -900,3 +945,4 @@ func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force
 	var prefix = toPrefix(no_decimals_on_small_values, use_thousand_symbol, force_decimals)
 
 	return prefix + options.suffix_separator + suffix
+#endregion
