@@ -521,6 +521,22 @@ func squared() -> Big:
     return self
 
 
+## sort function for use with [code]Array.sort_custom(Big.sort_increasing)[/code]
+static func sort_increasing(a:Big, b:Big):
+    if a.isLessThan(b):
+        return true
+    else:
+        return false
+
+
+## sort function for use with [code]Array.sort_custom(Big.sort_decreasing)[/code]
+static func sort_decreasing(a:Big, b:Big):
+    if a.isLessThan(b):
+        return false
+    else:
+        return true
+
+
 ## Equivalent of [code]Big == n[/code]
 func isEqualTo(n) -> bool:
     n = Big._typeCheck(n)
