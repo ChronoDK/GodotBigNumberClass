@@ -194,6 +194,7 @@ static func normalize(big: Big) -> void:
         is_negative = true
         big.mantissa *= -1
         
+    big.mantissa = snapped(big.mantissa, MANTISSA_PRECISION)
     if big.mantissa < 1.0 or big.mantissa >= 10.0:
         var diff: int = floor(log10(big.mantissa))
         if diff > -10 and diff < 248:
