@@ -159,7 +159,7 @@ const INT_MIN: int = -9223372036854775808
 ## int (signed 64-bit) maximum value
 const INT_MAX: int = 9223372036854775807
 
-func _init(m: Variant = options["default_value"], e: int = options["default_exponent"]) -> void:
+func _init(m: Variant = options["default_mantissa"], e: int = options["default_exponent"]) -> void:
     if m is Big:
         mantissa = m.mantissa
         exponent = m.exponent
