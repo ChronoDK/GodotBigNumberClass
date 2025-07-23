@@ -132,6 +132,8 @@ const latin_special: Array[String] = [
 
 ## Various options to control the string presentation of Big Numbers
 static var options = {
+    "default_mantissa": 1.0,
+    "default_exponent": 0,
     "dynamic_decimals": false, 
     "dynamic_numbers": 4, 
     "small_decimals": 2, 
@@ -157,7 +159,7 @@ const INT_MIN: int = -9223372036854775808
 ## int (signed 64-bit) maximum value
 const INT_MAX: int = 9223372036854775807
 
-func _init(m: Variant = 1.0, e: int = 0) -> void:
+func _init(m: Variant = options["default_value"], e: int = options["default_exponent"]) -> void:
     if m is Big:
         mantissa = m.mantissa
         exponent = m.exponent
@@ -609,6 +611,18 @@ func pow10(value: int) -> void:
     mantissa = 10 ** (value % 1)
     exponent = int(value)
 
+## Sets the Default (m)antissa and (e)xponent options, these are the default mantissa and exponent used when creating a new Big number
+static func setDefaultValue(m: float, e: int) -> void:
+    setDefaultMantissa(m)
+    setDefaultExponent(e)
+
+## Sets the Default mantissa option, this is the default mantissa used when creating a new Big number
+static func setDefaultMantissa(value: float) -> void:
+    options["default_mantissa"] = value
+
+## Sets the Default Exponent option, this is the default exponent used when creating a new Big number
+static func setDefaultExponent(value: int) -> void:
+    options["default_exponent"] = value
 
 ## Sets the Thousand name option
 static func setThousandName(name: String) -> void:
