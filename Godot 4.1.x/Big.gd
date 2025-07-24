@@ -12,9 +12,9 @@ extends RefCounted
 ## Please note that this class has limited precision and does not fully support negative exponents[br]
 
 ## Big Number Mantissa
-var mantissa: float
+@export var mantissa: float
 ## Big Number Exponent
-var exponent: int
+@export var exponent: int
 
 ## Metric Symbol Suffixes
 const suffixes_metric_symbol: Dictionary = {
