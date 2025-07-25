@@ -388,15 +388,13 @@ static func root(x: Big) -> Big:
 
 ## Modulos a number and returns the Big number result
 static func modulo(x, y) -> Big:
-    var result := Big.new(x.mantissa, x.exponent)
-    y = Big._typeCheck(y)
-    var big = { "mantissa": x.mantissa, "exponent": x.exponent }
-    Big.division(result, y)
-    Big.roundDown(result)
-    Big.times(result, y)
-    Big.subtract(result, big)
-    result.mantissa = abs(result.mantissa)
-    return result
+	x = Big._typeCheck(x)
+	y = Big._typeCheck(y)
+	var result = x.divide(y)
+	result = Big.roundDown(result)
+	result = Big.times(result, y)
+	result = Big.subtract(x, result)
+	return result
 
 
 ## Rounds down a Big number
