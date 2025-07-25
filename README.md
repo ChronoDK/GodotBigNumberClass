@@ -25,6 +25,7 @@ const Big = preload("res://path/to/Big.gd")
 Multiple constructors can be used to instantiate a `Big` number:
 
 ```GDScript
+var big_default = Big.new() # Creates a big with the default values as set in the options, see static functions on how to set the options
 var big_int = Big.new(100)  # From an integer
 var big_exp = Big.new(2, 6) # Using a mantissa and exponent;
                             # here means 2,000,000
@@ -118,6 +119,16 @@ The following static functions are available:
 var smallest = Big.minValue(big_value, value)
 var largest = Big.maxValue(big_value, value)
 var positive = Big.absolute(big_value)
+```
+
+```GDScript
+# The default mantissa is 1.0 if not changed
+# The default exponent is 0 if not changed
+
+Big.setDefaultValue(0.0, 0) # Sets the default mantissa and exponent for creation for new Bigs
+Big.setDefaultMantissa(0.0) # Sets the default mantissa for creation of new  Bigs
+Big.setDefaultExponent(0)   # Sets the default exponent for creation of new Bigs
+
 ```
 
 ## Formatting as a string
