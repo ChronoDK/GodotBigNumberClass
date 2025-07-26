@@ -1,5 +1,5 @@
 class_name Big
-extends RefCounted
+extends Resource
 ## Big number class for use in idle / incremental games and other games that needs very large numbers
 ##
 ## Can format large numbers using a variety of notation methods:[br]
@@ -12,9 +12,9 @@ extends RefCounted
 ## Please note that this class has limited precision and does not fully support negative exponents[br]
 
 ## Big Number Mantissa
-var mantissa: float
+@export var mantissa: float
 ## Big Number Exponent
-var exponent: int
+@export var exponent: int
 
 ## Metric Symbol Suffixes
 const suffixes_metric_symbol: Dictionary = {
