@@ -1,5 +1,5 @@
 class_name Big
-extends RefCounted
+extends Resource
 ## Big number class for use in idle / incremental games and other games that needs very large numbers
 ##
 ## Can format large numbers using a variety of notation methods:[br]
