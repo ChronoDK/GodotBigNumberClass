@@ -17,94 +17,94 @@ var mantissa: float
 var exponent: int
 
 ## Metric Symbol Suffixes
-const suffixes_metric_symbol: Dictionary = {
-    "0": "", 
-    "1": "k", 
-    "2": "M", 
-    "3": "G", 
-    "4": "T", 
-    "5": "P", 
-    "6": "E", 
-    "7": "Z", 
-    "8": "Y", 
-    "9": "R", 
-    "10": "Q",
+const suffixes_metric_symbol: Dictionary[int, String] = {
+    0: "", 
+    1: "k", 
+    2: "M", 
+    3: "G", 
+    4: "T", 
+    5: "P", 
+    6: "E", 
+    7: "Z", 
+    8: "Y", 
+    9: "R", 
+    10: "Q",
 }
 ## Metric Name Suffixes
-const suffixes_metric_name: Dictionary = {
-    "0": "", 
-    "1": "kilo", 
-    "2": "mega", 
-    "3": "giga", 
-    "4": "tera", 
-    "5": "peta", 
-    "6": "exa", 
-    "7": "zetta", 
-    "8": "yotta", 
-    "9": "ronna", 
-    "10": "quetta", 
+const suffixes_metric_name: Dictionary[int, String] = {
+    0: "", 
+    1: "kilo", 
+    2: "mega", 
+    3: "giga", 
+    4: "tera", 
+    5: "peta", 
+    6: "exa", 
+    7: "zetta", 
+    8: "yotta", 
+    9: "ronna", 
+    10: "quetta", 
 }
 
 ## AA suffixes keps in dictionary to prevent generating each of them again and again
-static var suffixes_aa: Dictionary = {
-    "0": "", 
-    "1": "k", 
-    "2": "m", 
-    "3": "b", 
-    "4": "t", 
-    "5": "aa", 
-    "6": "ab", 
-    "7": "ac", 
-    "8": "ad", 
-    "9": "ae", 
-    "10": "af", 
-    "11": "ag", 
-    "12": "ah", 
-    "13": "ai", 
-    "14": "aj", 
-    "15": "ak", 
-    "16": "al", 
-    "17": "am", 
-    "18": "an", 
-    "19": "ao", 
-    "20": "ap", 
-    "21": "aq", 
-    "22": "ar", 
-    "23": "as", 
-    "24": "at", 
-    "25": "au", 
-    "26": "av", 
-    "27": "aw", 
-    "28": "ax", 
-    "29": "ay", 
-    "30": "az", 
-    "31": "ba", 
-    "32": "bb", 
-    "33": "bc", 
-    "34": "bd", 
-    "35": "be", 
-    "36": "bf", 
-    "37": "bg", 
-    "38": "bh", 
-    "39": "bi", 
-    "40": "bj", 
-    "41": "bk", 
-    "42": "bl", 
-    "43": "bm", 
-    "44": "bn", 
-    "45": "bo", 
-    "46": "bp", 
-    "47": "bq", 
-    "48": "br", 
-    "49": "bs", 
-    "50": "bt", 
-    "51": "bu", 
-    "52": "bv", 
-    "53": "bw", 
-    "54": "bx", 
-    "55": "by", 
-    "56": "bz", 
-    "57": "ca"
+static var suffixes_aa: Dictionary[int, String] = {
+    0: "", 
+    1: "k", 
+    2: "m", 
+    3: "b", 
+    4: "t", 
+    5: "aa", 
+    6: "ab", 
+    7: "ac", 
+    8: "ad", 
+    9: "ae", 
+    10: "af", 
+    11: "ag", 
+    12: "ah", 
+    13: "ai", 
+    14: "aj", 
+    15: "ak", 
+    16: "al", 
+    17: "am", 
+    18: "an", 
+    19: "ao", 
+    20: "ap", 
+    21: "aq", 
+    22: "ar", 
+    23: "as", 
+    24: "at", 
+    25: "au", 
+    26: "av", 
+    27: "aw", 
+    28: "ax", 
+    29: "ay", 
+    30: "az", 
+    31: "ba", 
+    32: "bb", 
+    33: "bc", 
+    34: "bd", 
+    35: "be", 
+    36: "bf", 
+    37: "bg", 
+    38: "bh", 
+    39: "bi", 
+    40: "bj", 
+    41: "bk", 
+    42: "bl", 
+    43: "bm", 
+    44: "bn", 
+    45: "bo", 
+    46: "bp", 
+    47: "bq", 
+    48: "br", 
+    49: "bs", 
+    50: "bt", 
+    51: "bu", 
+    52: "bv", 
+    53: "bw", 
+    54: "bx", 
+    55: "by", 
+    56: "bz", 
+    57: "ca"
 }
 
 ## AA Alphabet
@@ -132,8 +132,6 @@ const latin_special: Array[String] = [
 
 ## Various options to control the string presentation of Big Numbers
 static var options = {
-    "default_mantissa": 1.0,
-    "default_exponent": 0,
     "dynamic_decimals": false, 
     "dynamic_numbers": 4, 
     "small_decimals": 2, 
@@ -159,7 +157,9 @@ const INT_MIN: int = -9223372036854775808
 ## int (signed 64-bit) maximum value
 const INT_MAX: int = 9223372036854775807
 
-func _init(m: Variant = options["default_mantissa"], e: int = options["default_exponent"]) -> void:
+const POW10:Array[float] = [1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, 10000000.0, 100000000.0, 1000000000.0, 10000000000.0, 100000000000.0, 1000000000000.0, 10000000000000.0, 100000000000000.0, 1000000000000000.0]
+
+func _init(m: Variant = 1.0, e: int = 0) -> void:
     if m is Big:
         mantissa = m.mantissa
         exponent = m.exponent
@@ -179,7 +179,7 @@ func _init(m: Variant = options["default_mantissa"], e: int = options["default_e
 static func _typeCheck(n) -> Big:
     if n is Big:
         return n
-    var result := Big.new(n)
+    var result:Big = Big.new(n)
     return result
 
 ## Warns if Big number's mantissa exceeds max
@@ -190,39 +190,35 @@ static func _sizeCheck(m: float) -> void:
 
 ## [url=https://en.wikipedia.org/wiki/Normalized_number]Normalize[/url] a Big number
 static func normalize(big: Big) -> void:
-    # Store sign if negative
-    var is_negative := false
-    if big.mantissa < 0:
-        is_negative = true
-        big.mantissa *= -1
-        
-    big.mantissa = snapped(big.mantissa, MANTISSA_PRECISION)
-    if big.mantissa < 1.0 or big.mantissa >= 10.0:
-        var diff: int = floor(log10(big.mantissa))
-        if diff > -10 and diff < 248:
-            var div = 10.0 ** diff
-            if div > MANTISSA_PRECISION:
-                big.mantissa /= div
-                big.exponent += diff
-    while big.exponent < 0:
-        big.mantissa *= 0.1
-        big.exponent += 1
-    while big.mantissa >= 10.0:
-        big.mantissa *= 0.1
-        big.exponent += 1
-    if big.mantissa == 0:
-        big.mantissa = 0.0
+    var m:float = big.mantissa
+    if m == 0.0:
         big.exponent = 0
-    big.mantissa = snapped(big.mantissa, MANTISSA_PRECISION)
+        return
+
+    var e:int = big.exponent
+
+    var sign_ := 1.0
+    if m < 0.0:
+        sign_ = -1.0
+        m = -m
+
+    var shift:int = int(floor(log10(m)))
+    if shift < 0 and -shift < POW10.size():
+        m *= POW10[-shift]
+    else:
+        m *= pow(10.0, -shift)
     
-    # Return sign if negative
-    if (is_negative):
-        big.mantissa *= -1
+    e += shift
+
+    m = snapped(m, MANTISSA_PRECISION)
+
+    big.mantissa = m * sign_
+    big.exponent = e
 
 
 ## Returns the absolute value of a number in Big format
 static func absolute(x) -> Big:
-    var result := Big.new(x)
+    var result:Big = Big.new(x)
     result.mantissa = abs(result.mantissa)
     return result
 
@@ -231,33 +227,38 @@ static func absolute(x) -> Big:
 static func add(x, y) -> Big:
     x = Big._typeCheck(x)
     y = Big._typeCheck(y)
-    var result := Big.new(x)
-    
-    var exp_diff: float = y.exponent - x.exponent
-    
-    if exp_diff < 248.0:
-        var scaled_mantissa: float = y.mantissa * 10 ** exp_diff
-        result.mantissa = x.mantissa + scaled_mantissa
-    elif x.isLessThan(y): # When difference between values is too big, discard the smaller number
-        result.mantissa = y.mantissa 
-        result.exponent = y.exponent
+
+    # Ensure x has the larger exponent (dominant number)
+    if y.exponent > x.exponent:
+        var temp:Big = x
+        x = y
+        y = temp
+
+    var result: Big = Big.new(x)
+    var exp_diff:int = y.exponent - x.exponent
+
+    # If y is too small to affect x (float precision limit), skip it
+    if exp_diff < -15:
+        return result
+    elif exp_diff >= -15: # Fast paths for common small differences
+        result.mantissa = x.mantissa + y.mantissa / POW10[-exp_diff]
+    else:
+        result.mantissa = x.mantissa + y.mantissa * pow(10.0, exp_diff)
+
     Big.normalize(result)
     return result
 
 
 ## Subtracts two numbers and returns the Big number result
 static func subtract(x, y) -> Big:
-    x = Big._typeCheck(x)
-    y = Big._typeCheck(y)
-    var negated_y := Big.new(-y.mantissa, y.exponent)
-    return add(negated_y, x)
+    return add(x, Big.new(y).negate())
 
 
 ## Multiplies two numbers and returns the Big number result
 static func times(x, y) -> Big:
     x = Big._typeCheck(x)
     y = Big._typeCheck(y)
-    var result := Big.new()
+    var result:Big = Big.new()
     
     var new_exponent: int = y.exponent + x.exponent
     var new_mantissa: float = y.mantissa * x.mantissa
@@ -274,7 +275,7 @@ static func times(x, y) -> Big:
 static func division(x, y) -> Big:
     x = Big._typeCheck(x)
     y = Big._typeCheck(y)
-    var result := Big.new(x)
+    var result:Big = Big.new(x)
     
     if y.mantissa > -MANTISSA_PRECISION and y.mantissa < MANTISSA_PRECISION:
         printerr("Big Error: Divide by zero or less than " + str(MANTISSA_PRECISION))
@@ -292,7 +293,7 @@ static func division(x, y) -> Big:
 
 ## Raises a Big number to the nth power and returns the Big number result
 static func powers(x: Big, y) -> Big:
-    var result := Big.new(x)
+    var result:Big = Big.new(x)
     if typeof(y) == TYPE_INT:
         if y <= 0:
             if y < 0:
@@ -354,7 +355,6 @@ static func powers(x: Big, y) -> Big:
         
         return powers(x, int(y))
     elif y is Big:
-        # warning - this might be slow!
         if y.isEqualTo(0):
             return Big.new(1)
         if y.isLessThan(0):
@@ -362,7 +362,7 @@ static func powers(x: Big, y) -> Big:
             return Big.new(0)
 
         var exponent_decremented:Big = y.minus(1)
-        while exponent_decremented.isGreaterThan(0):
+        while exponent_decremented.isGreaterThan(0):  # warning - this might be slow!
             result.multiplyEquals(x)
             exponent_decremented.minusEquals(1)
 
@@ -374,7 +374,7 @@ static func powers(x: Big, y) -> Big:
 
 ## Square Roots a given Big number and returns the Big number result
 static func root(x: Big) -> Big:
-    var result := Big.new(x)
+    var result:Big = Big.new(x)
     
     if result.exponent % 2 == 0:
         result.mantissa = sqrt(result.mantissa)
@@ -390,27 +390,40 @@ static func root(x: Big) -> Big:
 
 ## Modulos a number and returns the Big number result
 static func modulo(x, y) -> Big:
-	x = Big._typeCheck(x)
-	y = Big._typeCheck(y)
-	var result = x.divide(y)
-	result = Big.roundDown(result)
-	result = Big.times(result, y)
-	result = Big.subtract(x, result)
-	return result
+    x = Big._typeCheck(x)
+    y = Big._typeCheck(y)
+
+    var div := Big.division(x, y)
+    div = Big.roundDown(div)
+
+    var result := Big.subtract(x, Big.times(div, y))
+
+    # Fix floating-point drift
+    if result.isGreaterThanOrEqualTo(y):
+        result = Big.subtract(result, y)
+    if result.mantissa < 0:
+        result = Big.add(result, y)
+
+    Big.normalize(result)
+    return result
 
 
 ## Rounds down a Big number
 static func roundDown(x: Big) -> Big:
-    if x.exponent == 0:
-        x.mantissa = floor(x.mantissa)
+    var result:Big = Big.new(x)
+
+    if result.exponent < 0:
+        return Big.new(0)
+
+    if result.exponent == 0:
+        result.mantissa = floor(result.mantissa)
     else:
-        var precision := 1.0
-        for i in range(min(8, x.exponent)):
-            precision /= 10.0
-        if precision < MANTISSA_PRECISION:
-            precision = MANTISSA_PRECISION
-        x.mantissa = floor(x.mantissa / precision) * precision
-    return x
+        var scaled:float = result.mantissa * pow(10.0, min(result.exponent, 15))
+        scaled = floor(scaled)
+        result.mantissa = scaled / pow(10.0, min(result.exponent, 15))
+
+    Big.normalize(result)
+    return result
 
 
 ## Equivalent of [code]min(Big, Big)[/code]
@@ -490,7 +503,7 @@ func mod(n) -> Big:
 
 ## Equivalent of [code]Big %= n[/code]
 func modEquals(n) -> Big:
-    var new_value := Big.modulo(self, n)
+    var new_value:Big = Big.modulo(self, n)
     mantissa = new_value.mantissa
     exponent = new_value.exponent
     return self
@@ -516,10 +529,15 @@ func squareRoot() -> Big:
 
 ## Equivalent of [code]Big = sqrt(Big)[/code]
 func squared() -> Big:
-    var new_value := Big.root(self)
+    var new_value:Big = Big.root(self)
     mantissa = new_value.mantissa
     exponent = new_value.exponent
     return self
+
+
+## Negate the value
+func negate() -> Big:
+    return Big.new(-mantissa, exponent)
 
 
 ## sort function for use with [code]Array.sort_custom(Big.sort_increasing)[/code]
@@ -609,18 +627,6 @@ func pow10(value: int) -> void:
     mantissa = 10 ** (value % 1)
     exponent = int(value)
 
-## Sets the Default (m)antissa and (e)xponent options, these are the default mantissa and exponent used when creating a new Big number
-static func setDefaultValue(m: float, e: int) -> void:
-    setDefaultMantissa(m)
-    setDefaultExponent(e)
-
-## Sets the Default mantissa option, this is the default mantissa used when creating a new Big number
-static func setDefaultMantissa(value: float) -> void:
-    options["default_mantissa"] = value
-
-## Sets the Default Exponent option, this is the default exponent used when creating a new Big number
-static func setDefaultExponent(value: int) -> void:
-    options["default_exponent"] = value
 
 ## Sets the Thousand name option
 static func setThousandName(name: String) -> void:
@@ -689,16 +695,17 @@ static func setLogarithmicDecimals(d: int) -> void:
 
 ## Converts the Big Number into a string
 func toString() -> String:
-    var mantissa_decimals := 0
-    if str(mantissa).find(".") >= 0:
-        mantissa_decimals = str(mantissa).split(".")[1].length()
+    var mantissa_decimals:int = 0
+    var mantissa_string:String = str(mantissa)
+    if mantissa_string.find(".") >= 0:
+        mantissa_decimals = mantissa_string.split(".")[1].length()
     if mantissa_decimals > exponent:
         if exponent < 248:
             return str(mantissa * 10 ** exponent)
         else:
             return toPlainScientific()
     else:
-        var mantissa_string := str(mantissa).replace(".", "")
+        mantissa_string = mantissa_string.replace(".", "")
         for _i in range(exponent-mantissa_decimals):
             mantissa_string += "0"
         return mantissa_string
@@ -713,8 +720,8 @@ func toPlainScientific() -> String:
 func toScientific(no_decimals_on_small_values = false, force_decimals = false) -> String:
     if exponent < 3:
         var decimal_increments: float = 1 / (10 ** options.scientific_decimals / 10)
-        var value := str(snappedf(mantissa * 10 ** exponent, decimal_increments))
-        var split := value.split(".")
+        var value:String = str(snappedf(mantissa * 10 ** exponent, decimal_increments))
+        var split:PackedStringArray = value.split(".")
         if no_decimals_on_small_values:
             return split[0]
         if split.size() > 1:
@@ -725,7 +732,7 @@ func toScientific(no_decimals_on_small_values = false, force_decimals = false) -
         else:
             return value
     else:
-        var split := str(mantissa).split(".")
+        var split:PackedStringArray = str(mantissa).split(".")
         if split.size() == 1:
             split.append("")
         if force_decimals:
@@ -739,8 +746,8 @@ func toScientific(no_decimals_on_small_values = false, force_decimals = false) -
 func toLogarithmic(no_decimals_on_small_values = false) -> String:
     var decimal_increments: float = 1 / (10 ** options.logarithmic_decimals / 10)
     if exponent < 3:
-        var value := str(snappedf(mantissa * 10 ** exponent, decimal_increments))
-        var split := value.split(".")
+        var value:String = str(snappedf(mantissa * 10 ** exponent, decimal_increments))
+        var split:PackedStringArray = value.split(".")
         if no_decimals_on_small_values:
             return split[0]
         if split.size() > 1:
@@ -750,12 +757,12 @@ func toLogarithmic(no_decimals_on_small_values = false) -> String:
             return split[0] + options.decimal_separator + split[1].substr(0,min(options.logarithmic_decimals, options.dynamic_numbers - split[0].length() if options.dynamic_decimals else options.logarithmic_decimals))
         else:
             return value
-    var dec := str(snappedf(abs(log(mantissa) / log(10) * 10), decimal_increments))
+    var dec:String = str(snappedf(abs(log(mantissa) / log(10) * 10), decimal_increments))
     dec = dec.replace(".", "")
     for i in range(options.logarithmic_decimals):
         if dec.length() < options.logarithmic_decimals:
             dec += "0"
-    var formated_exponent := formatExponent(exponent)
+    var formated_exponent:String = formatExponent(exponent)
     dec = dec.substr(0, min(options.logarithmic_decimals, options.dynamic_numbers - formated_exponent.length() if options.dynamic_decimals else options.logarithmic_decimals))
     return "e" + formated_exponent + options.decimal_separator + dec
 
@@ -764,9 +771,9 @@ func toLogarithmic(no_decimals_on_small_values = false) -> String:
 func formatExponent(value) -> String:
     if value < 1000:
         return str(value)
-    var string := str(value)
-    var string_mod := string.length() % 3
-    var output := ""
+    var string:String = str(value)
+    var string_mod:int = string.length() % 3
+    var output:String = ""
     for i in range(0, string.length()):
         if i != 0 and i % 3 == string_mod:
             output += options.thousand_separator
@@ -776,18 +783,28 @@ func formatExponent(value) -> String:
 
 ## Converts the Big Number into a float
 func toFloat() -> float:
-    return snappedf(float(str(mantissa) + "e" + str(exponent)),0.01)
+    return snappedf(float(str(mantissa) + "e" + str(exponent)),MANTISSA_PRECISION)
+
+
+func toFloat2() -> float:
+    if exponent < POW10.size() and exponent >= 0:
+        return mantissa * POW10[exponent]
+    return mantissa * pow(10.0, exponent)
+
+
+func toFloat3() -> float:
+    return float(str(mantissa) + "e" + str(exponent))
 
 
 func toPrefix(no_decimals_on_small_values = false, use_thousand_symbol=true, force_decimals=true, scientic_prefix=false) -> String:
-    var number: float = mantissa
+    var number:float = mantissa
     if not scientic_prefix:
         var hundreds = 1
         for _i in range(exponent % 3):
             hundreds *= 10
         number *= hundreds
 
-    var split := str(number).split(".")
+    var split:PackedStringArray = str(number).split(".")
     if split.size() == 1:
         split.append("")
     if force_decimals:
@@ -833,14 +850,14 @@ func _latinPower(european_system) -> int:
 
 
 func _latinPrefix(european_system) -> String:
-    var ones := _latinPower(european_system) % 10
-    var tens := int(_latinPower(european_system) / floor(10)) % 10
+    var ones:int = _latinPower(european_system) % 10
+    var tens:int = int(_latinPower(european_system) / floor(10)) % 10
     @warning_ignore("integer_division")
-    var hundreds := int(_latinPower(european_system) / 100) % 10
+    var hundreds:int = int(_latinPower(european_system) / 100) % 10
     @warning_ignore("integer_division")
-    var millias := int(_latinPower(european_system) / 1000) % 10
+    var millias:int = int(_latinPower(european_system) / 1000) % 10
 
-    var prefix := ""
+    var prefix:String = ""
     if _latinPower(european_system) < 10:
         prefix = latin_special[ones] + options.reading_separator + latin_tens[tens] + options.reading_separator + latin_hundreds[hundreds]
     else:
@@ -855,7 +872,7 @@ func _latinPrefix(european_system) -> String:
 func _tillionOrIllion(european_system) -> String:
     if exponent < 6:
         return ""
-    var powerKilo := _latinPower(european_system) % 1000
+    var powerKilo:int = _latinPower(european_system) % 1000
     if powerKilo < 5 and powerKilo > 0 and _latinPower(european_system) < 1000:
         return ""
     if (
@@ -907,47 +924,215 @@ func toLongName(no_decimals_on_small_values = false, european_system = false) ->
 ## Converts the Big Number into a string (in Metric Symbols format)
 func toMetricSymbol(no_decimals_on_small_values = false) -> String:
     @warning_ignore("integer_division")
-    var target := int(exponent / 3)
+    var target:int = int(exponent / 3)
 
-    if not suffixes_metric_symbol.has(str(target)):
+    if not suffixes_metric_symbol.has(target):
         return toScientific()
     else:
-        return toPrefix(no_decimals_on_small_values) + options.suffix_separator + suffixes_metric_symbol[str(target)]
+        return toPrefix(no_decimals_on_small_values) + options.suffix_separator + suffixes_metric_symbol[target]
 
 
 ## Converts the Big Number into a string (in Metric Name format)
 func toMetricName(no_decimals_on_small_values = false) -> String:
     @warning_ignore("integer_division")
-    var target := int(exponent / 3)
+    var target:int = int(exponent / 3)
 
-    if not suffixes_metric_name.has(str(target)):
+    if not suffixes_metric_name.has(target):
         return toScientific()
     else:
-        return toPrefix(no_decimals_on_small_values) + options.suffix_separator + suffixes_metric_name[str(target)]
+        return toPrefix(no_decimals_on_small_values) + options.suffix_separator + suffixes_metric_name[target]
 
 
 ## Converts the Big Number into a string (in AA format)
 func toAA(no_decimals_on_small_values = false, use_thousand_symbol = true, force_decimals=false) -> String:
     @warning_ignore("integer_division")
-    var target := int(exponent / 3)
-    var aa_index := str(target)
-    var suffix := ""
-
-    if not suffixes_aa.has(aa_index):
-        var offset := target + 22
-        var base := alphabet_aa.size()
+    var target:int = int(exponent / 3)
+    var suffix:String = suffixes_aa.get(target, "")
+    if suffix == "":
+        var offset:int = target + 22
+        var base:int = alphabet_aa.size()
         while offset > 0:
             offset -= 1
-            var digit := offset % base
+            var digit:int = offset % base
             suffix = alphabet_aa[digit] + suffix
             offset /= base
-        suffixes_aa[aa_index] = suffix
+        suffixes_aa[target] = suffix
     else:
-        suffix = suffixes_aa[aa_index]
+        suffix = suffixes_aa[target]
 
-    if not use_thousand_symbol and target == 1:
-        suffix = ""
+    var prefix:String = toPrefix(no_decimals_on_small_values, use_thousand_symbol, force_decimals)
 
-    var prefix = toPrefix(no_decimals_on_small_values, use_thousand_symbol, force_decimals)
+    if target == 0 or (not use_thousand_symbol and target == 1):
+        return prefix
 
     return prefix + options.suffix_separator + suffix
+
+
+## Check function
+static func check(label:String, actual:Big, expected:Big) -> void:
+    if actual.isEqualTo(expected):
+        print("[PASS] ", label, " -> ", actual.toPlainScientific())
+    else:
+        print("[FAIL] ", label)
+        print("   Expected: ", expected.toPlainScientific())
+        print("   Got:      ", actual.toPlainScientific())
+
+
+## Check serialization function
+static func check_serialization(label:String, value:Big) -> void:
+    var serialized:String = value.toPlainScientific()
+    var deserialized:Big = Big.new(serialized)
+
+    if deserialized.isEqualTo(value):
+        print("[PASS] ", label, " -> ", serialized)
+    else:
+        print("[FAIL] ", label)
+        print("   Serialized:   ", serialized)
+        print("   Deserialized: ", deserialized.toPlainScientific())
+        print("   Original:     ", value.toPlainScientific())
+
+
+static func tests() -> void:
+    print("=== Big Number Tests ===")
+
+    # --- Basic addition ---
+    check("1 + 1",
+        Big.add(1, 1),
+        Big.new(2)
+    )
+
+    # --- Different exponents ---
+    check("1e3 + 1e2",
+        Big.add(Big.new(1, 3), Big.new(1, 2)),
+        Big.new(1.1, 3)
+    )
+
+    # --- Large exponent difference (should ignore small) ---
+    check("1e10 + 1",
+        Big.add(Big.new(1, 10), Big.new(1)),
+        Big.new(1, 10)
+    )
+
+    # --- Negative numbers ---
+    check("5 - 3",
+        Big.subtract(5, 3),
+        Big.new(2)
+    )
+
+    check("3 - 5",
+        Big.subtract(3, 5),
+        Big.new(-2)
+    )
+
+    # --- Multiplication ---
+    check("2 * 3",
+        Big.times(2, 3),
+        Big.new(6)
+    )
+
+    check("1e3 * 1e3",
+        Big.times(Big.new(1, 3), Big.new(1, 3)),
+        Big.new(1, 6)
+    )
+
+    # --- Division ---
+    check("6 / 3",
+        Big.division(6, 3),
+        Big.new(2)
+    )
+
+    check("1e6 / 1e3",
+        Big.division(Big.new(1, 6), Big.new(1, 3)),
+        Big.new(1, 3)
+    )
+
+    # --- Power ---
+    check("2^3",
+        Big.powers(Big.new(2), 3),
+        Big.new(8)
+    )
+
+    check("10^6",
+        Big.powers(Big.new(10), 6),
+        Big.new(1, 6)
+    )
+
+    # --- Root ---
+    check("sqrt(1e6)",
+        Big.root(Big.new(1, 6)),
+        Big.new(1, 3)
+    )
+
+    # --- Modulo ---
+    check("11 % 3",
+        Big.modulo(11, 3),
+        Big.new(2)
+    )
+
+    check("1e5 % 3",
+        Big.modulo(Big.new(1, 5), 3),
+        Big.new(1)
+    )
+
+    # --- Round down ---
+    check("roundDown(1.9)",
+        Big.roundDown(Big.new(1.9)),
+        Big.new(1)
+    )
+
+    # --- Comparisons ---
+    var a:Big = Big.new(1, 5)
+    var b:Big = Big.new(9, 4)
+
+    if a.isGreaterThan(b):
+        print("[PASS] comparison (1e5 > 9e4)")
+    else:
+        print("[FAIL] comparison (1e5 > 9e4)")
+
+    # --- Normalization ---
+    var n:Big = Big.new(1000)
+    if n.exponent == 3 and is_equal_approx(n.mantissa, 1.0):
+        print("[PASS] normalization (1000 -> 1e3)")
+    else:
+        print("[FAIL] normalization (1000 -> 1e3): ", n.toPlainScientific())
+
+    # --- Basic serialization ---
+    check_serialization("serialize 0", Big.new(0))
+    check_serialization("serialize 1", Big.new(1))
+    check_serialization("serialize -1", Big.new(-1))
+
+    # --- Small numbers ---
+    check_serialization("serialize 123", Big.new(123))
+    check_serialization("serialize 999.99", Big.new(999.99))
+
+    # --- Large numbers ---
+    check_serialization("serialize 1e6", Big.new(1, 6))
+    check_serialization("serialize 1.23e12", Big.new(1.23, 12))
+    check_serialization("serialize 9.99e100", Big.new(9.99, 100))
+
+    # --- Very large exponent (forces scientific format) ---
+    check_serialization("serialize huge exponent", Big.new(1.2345, 300))
+
+    # --- Edge cases around normalization ---
+    check_serialization("serialize 10 (should normalize to 1e1)", Big.new(10))
+    check_serialization("serialize 0.1 (should normalize)", Big.new(0.1))
+
+    # --- Negative values ---
+    check_serialization("serialize -1e6", Big.new(-1, 6))
+    check_serialization("serialize -3.21e9", Big.new(-3.21, 9))
+
+    # --- Precision-sensitive values ---
+    check_serialization("serialize 1.0000001", Big.new(1.0000001))
+    check_serialization("serialize 9.9999999e5", Big.new(9.9999999, 5))
+
+    # --- Arithmetic + serialization ---
+    var c:Big = Big.add(Big.new(1, 10), Big.new(5, 5))
+    check_serialization("serialize after add", c)
+
+    var d:Big = Big.times(Big.new(3.3, 4), Big.new(2.2, 3))
+    check_serialization("serialize after multiply", d)
+
+    var e:Big = Big.division(Big.new(1, 10), Big.new(3))
+    check_serialization("serialize after division", e)
+
+    print("=== Tests Complete ===")
