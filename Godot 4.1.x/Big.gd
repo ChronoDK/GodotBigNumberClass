@@ -211,6 +211,10 @@ static func normalize(big: Big) -> void:
     e += shift
 
     m = snapped(m, MANTISSA_PRECISION)
+    # Snapping can round 9.9999999 up to 10.0: carry it into the exponent
+    if m >= 10.0:
+        m /= 10.0
+        e += 1
 
     big.mantissa = m * sign_
     big.exponent = e
@@ -1095,6 +1099,24 @@ static func tests() -> void:
         print("[PASS] normalization (1000 -> 1e3)")
     else:
         print("[FAIL] normalization (1000 -> 1e3): ", n.toPlainScientific())
+
+    # --- Normalization after rounding ---
+    # 1.1 - 0.1 is 0.99999999... in floats: it must become 1e1, not a mantissa of 10
+    var r:Big = Big.subtract(11, 1)
+    if r.exponent == 1 and is_equal_approx(r.mantissa, 1.0):
+        print("[PASS] normalization after rounding (11 - 1 -> 1e1)")
+    else:
+        print("[FAIL] normalization after rounding (11 - 1 -> 1e1): mantissa ", r.mantissa, ", exponent ", r.exponent)
+
+    check("11 - 1 - 1",
+        Big.subtract(Big.subtract(11, 1), 1),
+        Big.new(9)
+    )
+
+    var countdown:Big = Big.new(12)
+    for i in 12:
+        countdown.minusEquals(1)
+    check("12 minus 1, twelve times", countdown, Big.new(0))
 
     # --- Basic serialization ---
     check_serialization("serialize 0", Big.new(0))
